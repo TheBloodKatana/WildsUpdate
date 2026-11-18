@@ -267,6 +267,11 @@ class PlayerStanding extends Action {
    }
 
    public void localStep(Game game) {
+      // Dev mode: F8 gives a Pokedex.
+      if (game.debugInputEnabled && game.playerCanMove && Gdx.input.isKeyJustPressed(com.badlogic.gdx.Input.Keys.F8)) {
+         game.player.setItemAmount("pokédex", 1);
+      }
+
       // Dev mode: F9 places a PC, F10 a healing machine, on the tile the player faces.
       if (game.debugInputEnabled && game.playerCanMove
          && (Gdx.input.isKeyJustPressed(com.badlogic.gdx.Input.Keys.F9) || Gdx.input.isKeyJustPressed(com.badlogic.gdx.Input.Keys.F10))) {

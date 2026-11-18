@@ -241,6 +241,9 @@ class DrawUseTossMenu extends Menu {
                      game, "Applied " + itemName.toUpperCase(Locale.ROOT) + "!", "fanfare1.ogg", null, new SetField(this.prevMenu, "disabled", false, null)
                   )
                );
+            } else if (itemName.equals("pokédex")) {
+               this.prevMenu.disabled = true;
+               game.insertAction(new DrawPokedex(this.prevMenu));
             } else if (Player.toolFieldMove(itemName) != null) {
                game.insertAction(this.prevMenu);
                // Put away any Pokemon field move, rod or seeds first

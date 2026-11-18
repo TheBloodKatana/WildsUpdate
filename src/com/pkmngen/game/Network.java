@@ -403,12 +403,16 @@ public class Network {
    public static class PlayerData extends Network.PlayerDataV07 {
       String currFieldMove = null;
       int fieldMovePokemonIndex = -1;
+      ArrayList<String> dexSeen;
+      ArrayList<String> dexCaught;
 
       public PlayerData() {
       }
 
       public PlayerData(Player player) {
          super(player);
+         this.dexSeen = new ArrayList<>(player.dexSeen);
+         this.dexCaught = new ArrayList<>(player.dexCaught);
          if (player.hmPokemon != null) {
             this.currFieldMove = player.currFieldMove;
             this.fieldMovePokemonIndex = player.pokemon.indexOf(player.hmPokemon);

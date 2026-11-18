@@ -84,6 +84,55 @@ public class Player {
    // Survival tools: name of the equipped tool ("" = none). A tool lets the player
    // use CUT / SMASH / DIG without a Pokemon (hmPokemon stays null).
    public String currTool = "";
+   // Pokedex: species ids (see dexId) the player has seen / caught.
+   public java.util.HashSet<String> dexSeen = new java.util.HashSet<>();
+   public java.util.HashSet<String> dexCaught = new java.util.HashSet<>();
+
+   /** Folds regional forms / letters into their base species id. */
+   public static String dexId(String specieName) {
+      String n = specieName.toLowerCase(Locale.ROOT);
+      if (n.startsWith("unown")) {
+         return "unown";
+      }
+      switch (n) {
+         case "aexeggutor": return "exeggutor";
+         case "amarowak": return "marowak";
+         case "araichu": return "raichu";
+         case "gcorsola": return "corsola";
+         case "gyamask": return "yamask";
+         case "gdarumaka": return "darumaka";
+         case "gdarmanitan":
+         case "gdarmanitanzen":
+         case "darmanitanzen": return "darmanitan";
+         case "combee_female": return "combee";
+         default: return n;
+      }
+   }
+
+   public void markSeen(Pokemon pokemon) {
+      if (pokemon != null && pokemon.specie != null && !pokemon.isEgg && !pokemon.isGhost) {
+         this.dexSeen.add(dexId(pokemon.specie.name));
+      }
+   }
+
+   public void markCaught(Pokemon pokemon) {
+      if (pokemon != null && pokemon.specie != null && !pokemon.isEgg && !pokemon.isGhost) {
+         this.dexSeen.add(dexId(pokemon.specie.name));
+         this.dexCaught.add(dexId(pokemon.specie.name));
+      }
+   }
+
+   /** Counts everything the player already owns (party, PC) as caught - covers old saves too. */
+   public void syncDexWithOwnedPokemon(Game game) {
+      for (Pokemon p : this.pokemon) {
+         this.markCaught(p);
+      }
+      if (game.map != null) {
+         for (Pokemon p : game.map.getPcRoute().storedPokemon) {
+            this.markCaught(p);
+         }
+      }
+   }
 
    /** Field move a tool performs, or null if the item isn't a tool. */
    public static String toolFieldMove(String item) {
@@ -548,6 +597,7 @@ public class Player {
       this.setItemAmount("escape rope", 1);
       if (Game.staticGame.debugInputEnabled) {
          this.setItemAmount("secret key", 1);
+         this.setItemAmount("pokédex", 1);
          for (String tool : new String[]{"stone axe", "stone pick", "stone shovel", "iron axe", "iron pick", "iron shovel"}) {
             this.setItemAmount(tool, 1);
          }
@@ -651,6 +701,16 @@ public class Player {
          this.buildTiles = this.indoorBuildTiles;
       } else {
          this.network.tiles = Game.staticGame.map.overworldTiles;
+      }
+
+      if (playerData instanceof com.pkmngen.game.Network.PlayerData) {
+         com.pkmngen.game.Network.PlayerData pd = (com.pkmngen.game.Network.PlayerData)playerData;
+         if (pd.dexSeen != null) {
+            this.dexSeen.addAll(pd.dexSeen);
+         }
+         if (pd.dexCaught != null) {
+            this.dexCaught.addAll(pd.dexCaught);
+         }
       }
 
       if (playerData instanceof com.pkmngen.game.Network.PlayerDataV07) {
@@ -1456,6 +1516,11 @@ public class Player {
       Player.Craft var25 = new Player.Craft("stardust", 1);
       var25.requirements.add(new Player.Craft("star piece", 1));
       crafts.add(var25);
+      Player.Craft dexCraft = new Player.Craft("pokédex", 1);
+      dexCraft.requirements.add(new Player.Craft("magnet", 2));
+      dexCraft.requirements.add(new Player.Craft("clear glass", 1));
+      dexCraft.requirements.add(new Player.Craft("thin paper", 2));
+      crafts.add(dexCraft);
       // Survival tools (campfire)
       Player.Craft toolCraft = new Player.Craft("stone axe", 1);
       toolCraft.requirements.add(new Player.Craft("log", 3));

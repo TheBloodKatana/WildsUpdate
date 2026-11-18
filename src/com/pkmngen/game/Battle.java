@@ -2341,6 +2341,7 @@ public class Battle {
    }
 
    public static Action getIntroAction(Game game, boolean fishing) {
+      game.player.markSeen(game.battle.oppPokemon);
       game.battle.resetState();
       DrawBattle.hideOwnPokemon = false;
       DrawBattle.hideOppPokemon = false;

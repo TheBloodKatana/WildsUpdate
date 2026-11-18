@@ -195,6 +195,7 @@ class CatchPokemonWobblesThenCatch extends Action {
             newAction.append(new SetField(game.musicController, "resumeOverworldMusic", true, null));
          }
 
+         game.player.markCaught(game.battle.oppPokemon);
          game.battle.oppPokemon.previousOwner = game.player;
          game.battle.oppPokemon.aggroPlayer = false;
          game.battle.oppPokemon.cantEscapeBy = null;
