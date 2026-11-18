@@ -708,6 +708,13 @@ class PlayerStanding extends Action {
                         game.client.sendTCP(new Network.UseHM(game.player.network.id, DrawPokemonMenu.currIndex, "STOP"));
                      }
 
+                     if (game.player.usingTool()) {
+                        game.player.currTool = "";
+                        game.player.currFieldMove = "";
+                        bTimer = 0;
+                        return;
+                     }
+
                      if (game.player.currPlanting != null) {
                         game.player.currPlanting = null;
                         bTimer = 0;
@@ -1359,6 +1366,7 @@ class PlayerStanding extends Action {
                               Action action = new CutTreeAnim(game, game.map.tiles.get(pos), null);
                               game.playerCanMove = false;
                               currTile.items().remove("torch");
+                              game.player.applyToolBonus(currTile.items());
                               if (!currTile.items().isEmpty()) {
                                  action.append(new SplitAction(new DrawItemPickup(currTile.items(), null), null));
 
@@ -1488,12 +1496,17 @@ class PlayerStanding extends Action {
                            }
 
                            if (currTile.name.contains("tree_large1") || currTile.nameUpper.equals("tree_savanna1")) {
-                              if (game.player.hmPokemon == null || game.player.hmPokemon.hasEvo()) {
+                              boolean tooWeak = game.player.hmPokemon == null
+                                 ? Player.toolTier(game.player.currTool) < 2
+                                 : game.player.hmPokemon.hasEvo();
+                              if (tooWeak) {
                                  game.playerCanMove = false;
                                  game.insertAction(
                                     new DisplayText(
                                        game,
-                                       game.player.hmPokemon.nickname.toUpperCase(Locale.ROOT) + " must be fully evolved to CUT large trees.",
+                                       game.player.hmPokemon == null
+                                          ? "Large trees need an IRON AXE."
+                                          : game.player.hmPokemon.nickname.toUpperCase(Locale.ROOT) + " must be fully evolved to CUT large trees.",
                                        null,
                                        null,
                                        new SetField(game, "playerCanMove", true, null)
@@ -1596,6 +1609,7 @@ class PlayerStanding extends Action {
                            game.playerCanMove = false;
                            if (!currTile.items().isEmpty()) {
                               currTile.items().remove("torch");
+                              game.player.applyToolBonus(currTile.items());
                               actionx.append(new SplitAction(new DrawItemPickup(currTile.items(), null), null));
 
                               for (String itemx : currTile.items().keySet()) {

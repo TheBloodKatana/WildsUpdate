@@ -16,6 +16,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
+import java.util.Locale;
 import java.util.Map;
 
 public class Player {
@@ -80,6 +81,44 @@ public class Player {
    Color skinColor = new Color(1.0F, 0.80784315F, 0.28235295F, 1.0F);
    public String currPlanting = null;
    public String currRod = "";
+   // Survival tools: name of the equipped tool ("" = none). A tool lets the player
+   // use CUT / SMASH / DIG without a Pokemon (hmPokemon stays null).
+   public String currTool = "";
+
+   /** Field move a tool performs, or null if the item isn't a tool. */
+   public static String toolFieldMove(String item) {
+      item = item.toLowerCase(Locale.ROOT);
+      if (item.endsWith(" pick") || item.endsWith(" pickaxe")) {
+         return "SMASH";
+      } else if (item.endsWith(" axe")) {
+         return "CUT";
+      } else if (item.endsWith(" shovel")) {
+         return "DIG";
+      }
+      return null;
+   }
+
+   /** 1 = stone, 2 = iron. Higher tiers unlock more (large trees, bonus drops). */
+   public static int toolTier(String item) {
+      return item.toLowerCase(Locale.ROOT).startsWith("iron ") ? 2 : 1;
+   }
+
+   /** True while a tool (not a Pokemon) is doing the current field move. */
+   public boolean usingTool() {
+      return this.hmPokemon == null && !this.currTool.equals("") && !this.currFieldMove.equals("");
+   }
+
+   /** Iron tools: 50% chance of +1 for each harvested item. Modifies the map in place. */
+   public void applyToolBonus(HashMap<String, Integer> items) {
+      if (!this.usingTool() || toolTier(this.currTool) < 2) {
+         return;
+      }
+      for (String key : new ArrayList<>(items.keySet())) {
+         if (Game.rand.nextInt(2) == 0) {
+            items.put(key, items.get(key) + 1);
+         }
+      }
+   }
    public boolean isFishing = false;
    public static Sprite sproutSprite;
    public static Sprite sproutSprite2;
@@ -494,6 +533,9 @@ public class Player {
       this.setItemAmount("escape rope", 1);
       if (Game.staticGame.debugInputEnabled) {
          this.setItemAmount("secret key", 1);
+         for (String tool : new String[]{"stone axe", "stone pick", "stone shovel", "iron axe", "iron pick", "iron shovel"}) {
+            this.setItemAmount(tool, 1);
+         }
          this.setItemAmount("master ball", 99);
          this.setItemAmount("grass", 99);
          this.setItemAmount("log", 99);
@@ -1399,6 +1441,32 @@ public class Player {
       Player.Craft var25 = new Player.Craft("stardust", 1);
       var25.requirements.add(new Player.Craft("star piece", 1));
       crafts.add(var25);
+      // Survival tools (campfire)
+      Player.Craft toolCraft = new Player.Craft("stone axe", 1);
+      toolCraft.requirements.add(new Player.Craft("log", 3));
+      toolCraft.requirements.add(new Player.Craft("hard stone", 1));
+      crafts.add(toolCraft);
+      toolCraft = new Player.Craft("stone pick", 1);
+      toolCraft.requirements.add(new Player.Craft("log", 2));
+      toolCraft.requirements.add(new Player.Craft("hard stone", 3));
+      crafts.add(toolCraft);
+      toolCraft = new Player.Craft("stone shovel", 1);
+      toolCraft.requirements.add(new Player.Craft("log", 2));
+      toolCraft.requirements.add(new Player.Craft("hard stone", 2));
+      crafts.add(toolCraft);
+      // Iron tools (kiln)
+      toolCraft = new Player.Craft("iron axe", 1);
+      toolCraft.requirements.add(new Player.Craft("stone axe", 1));
+      toolCraft.requirements.add(new Player.Craft("metal coat", 3));
+      kilnCrafts.add(toolCraft);
+      toolCraft = new Player.Craft("iron pick", 1);
+      toolCraft.requirements.add(new Player.Craft("stone pick", 1));
+      toolCraft.requirements.add(new Player.Craft("metal coat", 3));
+      kilnCrafts.add(toolCraft);
+      toolCraft = new Player.Craft("iron shovel", 1);
+      toolCraft.requirements.add(new Player.Craft("stone shovel", 1));
+      toolCraft.requirements.add(new Player.Craft("metal coat", 3));
+      kilnCrafts.add(toolCraft);
       Player.Craft var26 = new Player.Craft("poké ball", 1);
       var26.requirements.add(new Player.Craft("magnet", 1));
       var26.requirements.add(new Player.Craft("hard shell", 1));

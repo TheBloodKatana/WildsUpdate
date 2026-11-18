@@ -241,6 +241,37 @@ class DrawUseTossMenu extends Menu {
                      game, "Applied " + itemName.toUpperCase(Locale.ROOT) + "!", "fanfare1.ogg", null, new SetField(this.prevMenu, "disabled", false, null)
                   )
                );
+            } else if (Player.toolFieldMove(itemName) != null) {
+               game.insertAction(this.prevMenu);
+               // Put away any Pokemon field move, rod or seeds first
+               if (game.player.hmPokemon != null && !game.player.currFieldMove.equals("")) {
+                  game.player.swapSprites(game.player.hmPokemon);
+                  game.player.hmPokemon.removeDrawActions(game);
+                  game.player.hmPokemon = null;
+               }
+               game.player.currPlanting = null;
+               game.player.currRod = "";
+               String move = Player.toolFieldMove(itemName);
+               game.player.currTool = itemName;
+               game.player.currFieldMove = move;
+               String text;
+               if (move.equals("DIG")) {
+                  game.player.buildTiles = game.player.terrainTiles;
+                  while (game.player.buildTileIndex > 0 && game.player.buildTileIndex >= game.player.buildTiles.size()) {
+                     game.player.buildTileIndex--;
+                  }
+                  game.player.currBuildTile = game.player.buildTiles.get(game.player.buildTileIndex);
+                  text = "Equipped " + itemName.toUpperCase(Locale.ROOT) + "! Press C and V to select terrain.";
+               } else if (move.equals("CUT")) {
+                  text = "Equipped " + itemName.toUpperCase(Locale.ROOT) + "! Press Z to chop. Hold X to put away.";
+               } else {
+                  text = "Equipped " + itemName.toUpperCase(Locale.ROOT) + "! Press Z to break rocks. Hold X to put away.";
+               }
+               game.insertAction(
+                  new DisplayText(
+                     game, text, null, false, true, new WaitFrames(game, 10, new RemoveAction(this.prevMenu, new SetField(game, "playerCanMove", true, null)))
+                  )
+               );
             } else if (itemName.contains("rod")) {
                game.insertAction(this.prevMenu);
                game.player.currRod = itemName;

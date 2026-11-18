@@ -401,6 +401,12 @@ class DrawItemMenuGen2 extends Menu {
       itemDescriptions.put("Pink Apricorn".toLowerCase(Locale.ROOT), "A pink APRICORN.");
       itemDescriptions.put("Green Apricorn".toLowerCase(Locale.ROOT), "A green APRICORN.");
       itemDescriptions.put("Old Rod".toLowerCase(Locale.ROOT), "Use by water to fish for POKéMON.");
+      itemDescriptions.put("stone axe", "Chops small trees without a POKéMON.");
+      itemDescriptions.put("stone pick", "Breaks rocks without a POKéMON.");
+      itemDescriptions.put("stone shovel", "Digs terrain without a POKéMON.");
+      itemDescriptions.put("iron axe", "Chops any tree. May yield extra.");
+      itemDescriptions.put("iron pick", "Breaks rocks. May yield extra.");
+      itemDescriptions.put("iron shovel", "A sturdy shovel for digging.");
       itemDescriptions.put("Good Rod".toLowerCase(Locale.ROOT), "Use by water to fish for POKéMON.");
       itemDescriptions.put("Super Rod".toLowerCase(Locale.ROOT), "Use by water to fish for POKéMON.");
       itemDescriptions.put("Pecha Berry".toLowerCase(Locale.ROOT), "Cures <> of  POISON.");
