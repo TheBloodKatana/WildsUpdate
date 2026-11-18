@@ -884,7 +884,9 @@ class DrawPokemonMenu extends Menu {
                      if (storageChestTile != null) {
                         nextActionx.append(
                            new WaitFrames(
-                              game, 10, new CallMethod(storageChestTile.overSprite, "setRegion", new Object[]{0, 0, 16, 32}, new PlayMusic("exit1", null))
+                              game, 10, new CallMethod(storageChestTile.overSprite, "setRegion",
+                                 storageChestTile.nameUpper.equals("pc1") ? new Object[]{0, 0, 16, 24} : new Object[]{0, 0, 16, 32},
+                                 new PlayMusic(storageChestTile.nameUpper.equals("pc1") ? "pc_off1" : "exit1", null))
                            )
                         );
                      }

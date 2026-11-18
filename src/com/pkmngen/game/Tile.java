@@ -986,6 +986,10 @@ public class Tile {
             this.sprite = TextureCache.getTileSprite(tileName);
          } else if (tileName.equals("stairs_down1")) {
             this.sprite = TextureCache.getTileSprite(tileName);
+         } else if (tileName.equals("pc1")) {
+            this.sprite = TextureCache.getTileSprite(tileName, 16, 24);
+         } else if (tileName.equals("heal_machine1")) {
+            this.sprite = TextureCache.getTileSprite(tileName, 16, 24);
          } else if (tileName.equals("ball_kiln1")) {
             this.sprite = TextureCache.getTileSprite(tileName, 16, 24);
          } else {
@@ -1468,6 +1472,14 @@ public class Tile {
 
          if (this.nameUpper.equals("chest1")) {
             this.overSprite.setRegion(0, 0, 16, 32);
+         }
+
+         if (this.nameUpper.equals("pc1")) {
+            this.overSprite.setRegion(0, 0, 16, 24);
+         }
+
+         if (this.nameUpper.equals("heal_machine1")) {
+            this.overSprite.setRegion(0, 0, 16, 24);
          }
 
          if (!this.nameUpper.contains("door")
@@ -3279,6 +3291,50 @@ public class Tile {
                return;
             }
          } else {
+            if (this.nameUpper.equals("pc1")) {
+               // Every PC opens the same box.
+               this.routeBelongsTo = game.map.getPcRoute();
+               game.playerCanMove = false;
+               game.insertAction(
+                  new WaitFrames(game, 6, new CallMethod(this.overSprite, "setRegion", new Object[]{16, 0, 16, 24}, new PlayMusic("pc_on1", null)))
+               );
+               game.insertAction(
+                  new WaitFrames(game, 16, new DisplayText(game, "Accessed the POKéMON STORAGE SYSTEM.", null, false, true,
+                     new DrawPokemonMenu.Intro(new DrawPokemonMenu(game, true, this, null))))
+               );
+               return;
+            }
+
+            if (this.nameUpper.equals("heal_machine1")) {
+               game.playerCanMove = false;
+               final Tile machine = this;
+               game.insertAction(
+                  new DisplayText(
+                     game,
+                     "Heal your POKéMON?",
+                     null,
+                     true,
+                     false,
+                     new DrawYesNoMenu(
+                        null,
+                        new DisplayText.Clear(game, new CallMethod(this.overSprite, "setRegion", new Object[]{16, 0, 16, 24},
+                           new PlayMusic("pc_on1", new WaitFrames(game, 60, new RunCode(() -> {
+                              for (Pokemon pokemon : game.player.pokemon) {
+                                 if (!pokemon.isEgg) {
+                                    pokemon.currentStats.put("hp", pokemon.maxStats.get("hp"));
+                                    pokemon.status = null;
+                                 }
+                              }
+                              machine.overSprite.setRegion(0, 0, 16, 24);
+                           }, new DisplayText(game, "Your POKéMON are fighting fit!", "fanfare1.ogg", false, true,
+                              new SetField(game, "playerCanMove", true, null))))))),
+                        new DisplayText.Clear(game, new WaitFrames(game, 3, new SetField(game, "playerCanMove", true, null)))
+                     )
+                  )
+               );
+               return;
+            }
+
             if (this.nameUpper.equals("chest1")) {
                if (this.routeBelongsTo == null) {
                   this.routeBelongsTo = new Route("", 2);

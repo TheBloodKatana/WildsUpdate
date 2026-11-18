@@ -104,6 +104,11 @@ public class Player {
    }
 
    /** True while a tool (not a Pokemon) is doing the current field move. */
+   /** Furniture that takes two tiles (left tile + an "onpress_left" helper on the right). */
+   public static boolean isTwoWide(String name) {
+      return name.equals("house_couch1");
+   }
+
    public boolean usingTool() {
       return this.hmPokemon == null && !this.currTool.equals("") && !this.currFieldMove.equals("");
    }
@@ -358,6 +363,8 @@ public class Player {
       this.indoorBuildTiles.add(new Tile("chest1", new Vector2(0.0F, 0.0F)));
       this.indoorBuildTiles.add(new Tile("stairs_up1", new Vector2(0.0F, 0.0F)));
       this.indoorBuildTiles.add(new Tile("ball_kiln1", new Vector2(0.0F, 0.0F)));
+      this.indoorBuildTiles.add(new Tile("pc1", new Vector2(0.0F, 0.0F)));
+      this.indoorBuildTiles.add(new Tile("heal_machine1", new Vector2(0.0F, 0.0F)));
       this.indoorBuildTiles.add(new Tile("house_clock1", new Vector2(0.0F, 0.0F)));
       this.indoorBuildTiles.add(new Tile("interiorwall1", new Vector2(0.0F, 0.0F)));
       this.indoorBuildTiles.add(new Tile("house_couch1", new Vector2(0.0F, 0.0F)));
@@ -515,6 +522,14 @@ public class Player {
             } else if (tile.name.equals("ball_kiln1")) {
                requirements.put("hard stone", 2);
                requirements.put("charcoal", 2);
+            } else if (tile.name.equals("pc1")) {
+               requirements.put("magnet", 2);
+               requirements.put("metal coat", 2);
+               requirements.put("clear glass", 1);
+            } else if (tile.name.equals("heal_machine1")) {
+               requirements.put("metal coat", 3);
+               requirements.put("magnet", 2);
+               requirements.put("life force", 2);
             } else if (tile.name.contains("stairs_up")) {
                requirements.put("log", 2);
             } else if (tile.name.contains("chimney")) {

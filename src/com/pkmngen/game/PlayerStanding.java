@@ -267,6 +267,25 @@ class PlayerStanding extends Action {
    }
 
    public void localStep(Game game) {
+      // Dev mode: F9 places a PC, F10 a healing machine, on the tile the player faces.
+      if (game.debugInputEnabled && game.playerCanMove
+         && (Gdx.input.isKeyJustPressed(com.badlogic.gdx.Input.Keys.F9) || Gdx.input.isKeyJustPressed(com.badlogic.gdx.Input.Keys.F10))) {
+         String devTile = Gdx.input.isKeyJustPressed(com.badlogic.gdx.Input.Keys.F9) ? "pc1" : "heal_machine1";
+         Vector2 facing = game.player.facingPos();
+         Tile devTarget = game.map.tiles.get(facing);
+         if (devTarget != null && !devTarget.isSolid) {
+            devTarget.nameUpper = devTile;
+            devTarget.init();
+            if (Player.isTwoWide(devTile)) {
+               Tile right = game.map.tiles.get(facing.cpy().add(16.0F, 0.0F));
+               if (right != null) {
+                  right.nameUpper = "onpress_left";
+                  right.isSolid = true;
+               }
+            }
+         }
+      }
+
       if (game.playerCanMove) {
          boolean shouldMove = false;
          Vector2 newPos = new Vector2();
@@ -902,7 +921,7 @@ class PlayerStanding extends Action {
                      if (!game.player.currBuildTile.name.contains("bed")
                         && !game.player.currBuildTile.name.equals("house_couch2")
                         && !game.player.currBuildTile.name.equals("house_couch4")) {
-                        if (game.player.currBuildTile.name.equals("house_couch1")) {
+                        if (Player.isTwoWide(game.player.currBuildTile.name)) {
                            Tile rightTile = game.map.interiorTiles.get(game.map.interiorTilesIndex).get(pos.cpy().add(16.0F, 0.0F));
                            requirementsMet &= rightTile != null && !rightTile.isSolid && !rightTile.nameUpper.contains("door");
                         }
@@ -977,7 +996,7 @@ class PlayerStanding extends Action {
                         if (!game.player.currBuildTile.name.contains("bed")
                            && !game.player.currBuildTile.name.equals("house_couch2")
                            && !game.player.currBuildTile.name.equals("house_couch4")) {
-                           if (game.player.currBuildTile.name.equals("house_couch1")) {
+                           if (Player.isTwoWide(game.player.currBuildTile.name)) {
                               Tile right = game.map.tiles.get(currTile.position.cpy().add(16.0F, 0.0F));
                               right.nameUpper = "onpress_left";
                               right.isSolid = true;
@@ -1485,6 +1504,16 @@ class PlayerStanding extends Action {
                               }
                            }
 
+                           if (currTile.nameUpper.equals("pc1") && !game.map.getPcRoute().storedPokemon.isEmpty()) {
+                              game.playerCanMove = false;
+                              game.insertAction(
+                                 new DisplayText(
+                                    game, "Withdraw all POKéMON from the PC before CUTTING it.", null, null, new SetField(game, "playerCanMove", true, null)
+                                 )
+                              );
+                              return;
+                           }
+
                            if (currTile.nameUpper.contains("chest1") && currTile.routeBelongsTo != null && !currTile.routeBelongsTo.storedPokemon.isEmpty()) {
                               game.playerCanMove = false;
                               game.insertAction(
@@ -1552,7 +1581,7 @@ class PlayerStanding extends Action {
                               upTile.isSolid = false;
                            }
 
-                           if (right != null && currTile.nameUpper.equals("house_couch1")) {
+                           if (right != null && Player.isTwoWide(currTile.nameUpper)) {
                               right.nameUpper = "";
                               right.isSolid = false;
                            }
@@ -1589,7 +1618,7 @@ class PlayerStanding extends Action {
                                     }
 
                                     right = interiorTiles.get(interiorTile.position.cpy().add(16.0F, 0.0F));
-                                    if (right != null && currTile.nameUpper.equals("house_couch1")) {
+                                    if (right != null && Player.isTwoWide(currTile.nameUpper)) {
                                        right.nameUpper = "";
                                        right.isSolid = false;
                                     }

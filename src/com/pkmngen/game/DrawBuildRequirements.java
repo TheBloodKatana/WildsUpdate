@@ -117,6 +117,8 @@ class DrawBuildRequirements extends DrawAction {
       this.namesMap.put("chest1", "Storage");
       this.namesMap.put("stairs_up1", "Stairs");
       this.namesMap.put("ball_kiln1", "Kiln");
+      this.namesMap.put("pc1", "PC");
+      this.namesMap.put("heal_machine1", "Healer");
       this.namesMap.put("sand1", "Sand");
       this.namesMap.put("desert4", "Desert");
       this.namesMap.put("snow2", "Snow");

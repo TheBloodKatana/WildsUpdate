@@ -63,6 +63,42 @@ public class PkmnMap {
    Vector2 topRight = null;
    ArrayList<Vector2> edges = new ArrayList<>();
    public Route currRoute;
+   // Shared storage for every PC tile on this map (lazily found/created).
+   public Route pcRoute;
+
+   /** Returns the shared PC storage, adopting the one saved on any PC tile. */
+   public Route getPcRoute() {
+      if (this.pcRoute != null) {
+         return this.pcRoute;
+      }
+      ArrayList<java.util.Map<Vector2, Tile>> layers = new ArrayList<>();
+      layers.add(this.overworldTiles);
+      layers.addAll(this.interiorTiles);
+      for (java.util.Map<Vector2, Tile> layer : layers) {
+         if (layer == null) {
+            continue;
+         }
+         for (Tile tile : layer.values()) {
+            if (tile.nameUpper.equals("pc1") && tile.routeBelongsTo != null) {
+               if (this.pcRoute == null) {
+                  this.pcRoute = tile.routeBelongsTo;
+               } else if (tile.routeBelongsTo != this.pcRoute) {
+                  // Shouldn't happen, but never lose Pokemon: merge into one box.
+                  for (Pokemon p : tile.routeBelongsTo.storedPokemon) {
+                     if (!this.pcRoute.storedPokemon.contains(p)) {
+                        this.pcRoute.storedPokemon.add(p);
+                     }
+                  }
+                  tile.routeBelongsTo = this.pcRoute;
+               }
+            }
+         }
+      }
+      if (this.pcRoute == null) {
+         this.pcRoute = new Route("", 2);
+      }
+      return this.pcRoute;
+   }
    String currBiome = "";
    Random rand;
    String timeOfDay = "day";
