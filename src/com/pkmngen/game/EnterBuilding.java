@@ -86,6 +86,10 @@ class EnterBuilding extends Action {
                } else {
                   game.map.interiorTilesIndex = 100;
                }
+            } else if (this.action.equals("enter") && this.whichTiles == null && CaveGen.isEntrance(game, tile)) {
+               game.map.interiorTilesIndex = CaveGen.enter(game, tile);
+            } else if (this.action.equals("exit") && game.map.interiorTilesIndex < 90) {
+               game.map.interiorTilesIndex = 100;
             }
 
             game.map.refreshCache = true;
@@ -142,6 +146,10 @@ class EnterBuilding extends Action {
                   } else {
                      game.mapBatch.setColor(new Color(0.02F, 0.02F, 0.05F, 1.0F));
                   }
+               } else if (newRoute != null && newRoute.name.matches("cave[1-3]")) {
+                  // Caves ignore day/night; each floor down is a little darker.
+                  float b = 1.0F - 0.12F * (newRoute.name.charAt(4) - '1');
+                  game.mapBatch.setColor(new Color(b, b, b, 1.0F));
                } else if (newRoute == null || !newRoute.name.equals("regi_cave1")) {
                   if (newRoute != null && newRoute.type().equals("graveyard") && !game.map.timeOfDay.equals("night")) {
                      game.mapBatch.setColor(new Color(0.9F, 0.9F, 1.0F, 1.0F));

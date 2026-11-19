@@ -47,6 +47,10 @@ public class Route {
          this.isDungeon = true;
       }
 
+      if (this.name.startsWith("cave") && this.name.length() == 5) {
+         this.isDungeon = true;
+      }
+
       if (this.name.equals("ruins1_inner")) {
          this.isDungeon = true;
       }
@@ -82,6 +86,9 @@ public class Route {
          } else if (this.name.equals("regi_cave1")) {
             musics.add("sealed_chamber2");
             musics.add("sealed_chamber2");
+         } else if (this.name.equals("cave1") || this.name.equals("cave2") || this.name.equals("cave3")) {
+            musics.add("union_cave");
+            musics.add("union_cave");
          } else if (this.name.equals("desert1") || this.name.equals("ruins1_outer") || this.name.equals("oasis1") || this.name.equals("sand_pit1")) {
             musics.add("route_111-2");
             musics.add("route_111-2");
@@ -392,6 +399,18 @@ public class Route {
                   allowedPokemon.add("ditto");
                } else if (this.name.equals("regi_cave1")) {
                   allowedPokemon.clear();
+               } else if (this.name.equals("cave1")) {
+                  for (String p : new String[]{"zubat", "geodude", "onix", "machop", "whismur", "aron", "dunsparce", "diglett"}) {
+                     allowedPokemon.add(p);
+                  }
+               } else if (this.name.equals("cave2")) {
+                  for (String p : new String[]{"golbat", "graveler", "onix", "aron", "lairon", "mawile", "sableye", "nosepass", "larvitar", "bronzor"}) {
+                     allowedPokemon.add(p);
+                  }
+               } else if (this.name.equals("cave3")) {
+                  for (String p : new String[]{"golbat", "graveler", "steelix", "lairon", "pupitar", "larvitar", "gible", "carbink", "noibat", "sableye"}) {
+                     allowedPokemon.add(p);
+                  }
                } else if (this.name.equals("oasis_pond1")) {
                   allowedPokemon.add("poliwag");
                   allowedPokemon.add("goldeen");

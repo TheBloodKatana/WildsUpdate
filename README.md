@@ -40,7 +40,14 @@ release (by SheerSt) for personal modding only.
   iron tools, ultra balls, healing machine, repeat/hunter/luxury balls.
   Tuning knobs at the top of Boss.java.
 
+- Caves: up to 4 entrances on rocky mountain ground per world. 3 procedurally generated floors
+  each (GSC Dark Cave tiles), linked by ladders, generated on first visit and saved. Cave
+  Pokemon get stronger per floor; floors hold copper/iron/gold/crystal ore rocks (SMASH; gold
+  and crystal need an IRON PICK or a fully evolved Pokemon). Iron tools now cost iron ore;
+  the kiln turns ore into metal coat, magnets, nuggets and evolution stones.
+
 ## Dev mode keys (run with `dev`)
+- F6: jump to the nearest cave entrance
 - F7: spawn a boss two tiles ahead
 - F8: give a Pokedex + 20 of each new ball
 - F9 / F10: place a PC / healing machine on the faced tile

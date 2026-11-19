@@ -94,6 +94,9 @@ public class Player {
    public HashMap<String, String> bossSpots = new HashMap<>();
    public int daysPassed = 0;
    public int bossesBeaten = 0;
+   // Caves (see CaveGen.java): entrance "x,y" -> cave number
+   public boolean cavesPlaced = false;
+   public HashMap<String, Integer> caveEntrances = new HashMap<>();
 
    /** Highest level of wild Pokemon you can catch. Raised by beating bosses. */
    public int catchLevelCap() {
@@ -740,6 +743,10 @@ public class Player {
          }
          this.daysPassed = pd.daysPassed;
          this.bossesBeaten = pd.bossesBeaten;
+         this.cavesPlaced = pd.cavesPlaced;
+         if (pd.caveEntrances != null) {
+            this.caveEntrances.putAll(pd.caveEntrances);
+         }
       }
 
       if (playerData instanceof com.pkmngen.game.Network.PlayerDataV07) {
@@ -1569,15 +1576,15 @@ public class Player {
       // Iron tools (kiln)
       toolCraft = new Player.Craft("iron axe", 1);
       toolCraft.requirements.add(new Player.Craft("stone axe", 1));
-      toolCraft.requirements.add(new Player.Craft("metal coat", 3));
+      toolCraft.requirements.add(new Player.Craft("iron ore", 3));
       kilnCrafts.add(toolCraft);
       toolCraft = new Player.Craft("iron pick", 1);
       toolCraft.requirements.add(new Player.Craft("stone pick", 1));
-      toolCraft.requirements.add(new Player.Craft("metal coat", 3));
+      toolCraft.requirements.add(new Player.Craft("iron ore", 3));
       kilnCrafts.add(toolCraft);
       toolCraft = new Player.Craft("iron shovel", 1);
       toolCraft.requirements.add(new Player.Craft("stone shovel", 1));
-      toolCraft.requirements.add(new Player.Craft("metal coat", 3));
+      toolCraft.requirements.add(new Player.Craft("iron ore", 3));
       kilnCrafts.add(toolCraft);
       Player.Craft var26 = new Player.Craft("poké ball", 1);
       var26.requirements.add(new Player.Craft("magnet", 1));
@@ -1619,6 +1626,28 @@ public class Player {
       var35.requirements.add(new Player.Craft("love ball", 1));
       var35.requirements.add(new Player.Craft("psi energy", 1));
       kilnCrafts.add(var35);
+      // Cave ore recipes (kiln)
+      Player.Craft oreCraft = new Player.Craft("metal coat", 1);
+      oreCraft.requirements.add(new Player.Craft("iron ore", 1));
+      oreCraft.requirements.add(new Player.Craft("copper ore", 1));
+      kilnCrafts.add(oreCraft);
+      oreCraft = new Player.Craft("magnet", 1);
+      oreCraft.requirements.add(new Player.Craft("iron ore", 2));
+      kilnCrafts.add(oreCraft);
+      oreCraft = new Player.Craft("shiny stone", 1);
+      oreCraft.requirements.add(new Player.Craft("crystal ore", 3));
+      kilnCrafts.add(oreCraft);
+      oreCraft = new Player.Craft("dawn stone", 1);
+      oreCraft.requirements.add(new Player.Craft("crystal ore", 2));
+      oreCraft.requirements.add(new Player.Craft("psi energy", 1));
+      kilnCrafts.add(oreCraft);
+      oreCraft = new Player.Craft("dusk stone", 1);
+      oreCraft.requirements.add(new Player.Craft("crystal ore", 2));
+      oreCraft.requirements.add(new Player.Craft("dark energy", 1));
+      kilnCrafts.add(oreCraft);
+      oreCraft = new Player.Craft("nugget", 1);
+      oreCraft.requirements.add(new Player.Craft("gold ore", 2));
+      kilnCrafts.add(oreCraft);
       Player.Craft newBall = new Player.Craft("repeat ball", 1);
       newBall.requirements.add(new Player.Craft("great ball", 1));
       newBall.requirements.add(new Player.Craft("thin paper", 1));

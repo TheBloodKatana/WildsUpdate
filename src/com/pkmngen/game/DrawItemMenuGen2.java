@@ -401,6 +401,10 @@ class DrawItemMenuGen2 extends Menu {
       itemDescriptions.put("Pink Apricorn".toLowerCase(Locale.ROOT), "A pink APRICORN.");
       itemDescriptions.put("Green Apricorn".toLowerCase(Locale.ROOT), "A green APRICORN.");
       itemDescriptions.put("Old Rod".toLowerCase(Locale.ROOT), "Use by water to fish for POKéMON.");
+      itemDescriptions.put("copper ore", "Soft ore found in caves.");
+      itemDescriptions.put("iron ore", "Sturdy ore for iron tools.");
+      itemDescriptions.put("gold ore", "Rare ore from deep caves.");
+      itemDescriptions.put("crystal ore", "A shard that hums with power.");
       itemDescriptions.put("repeat ball", "Good on POKéMON caught before.");
       itemDescriptions.put("luxury ball", "Makes POKéMON friendly fast.");
       itemDescriptions.put("hunter ball", "Good on POKéMON chasing you.");

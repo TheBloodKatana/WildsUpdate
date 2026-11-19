@@ -70,7 +70,7 @@ class PlayerStanding extends Action {
 
    Pokemon checkWildEncounter(Game game, Vector2 position) {
       Tile currTile = game.map.tiles.get(position);
-      if (currTile != null && currTile.routeBelongsTo != null && currTile.isGrass) {
+      if (currTile != null && currTile.routeBelongsTo != null && (currTile.isGrass || currTile.name.equals("cave3_floor1"))) {
          if (currTile.items().containsKey("trapinch")) {
             return null;
          }
@@ -273,6 +273,25 @@ class PlayerStanding extends Action {
    }
 
    public void localStep(Game game) {
+      // Dev mode: F6 teleports below the nearest cave entrance (overworld only).
+      if (game.debugInputEnabled && game.playerCanMove && game.map.tiles == game.map.overworldTiles
+         && Gdx.input.isKeyJustPressed(com.badlogic.gdx.Input.Keys.F6)) {
+         Vector2 best = null;
+         for (String k : game.player.caveEntrances.keySet()) {
+            String[] xy = k.split(",");
+            Vector2 p = new Vector2(Float.valueOf(xy[0]), Float.valueOf(xy[1]) - 16.0F);
+            if (best == null || p.dst2(game.player.position) < best.dst2(game.player.position)) {
+               best = p;
+            }
+         }
+         if (best != null) {
+            game.player.position.set(best);
+            game.player.dirFacing = "up";
+            game.cam.position.set(best.x + 16.0F, best.y, 0.0F);
+            game.map.refreshCache = true;
+         }
+      }
+
       // Dev mode: F7 spawns a boss two tiles ahead.
       if (game.debugInputEnabled && game.playerCanMove && Gdx.input.isKeyJustPressed(com.badlogic.gdx.Input.Keys.F7)) {
          Vector2 ahead = game.player.facingPos().cpy().add(game.player.facingPos().cpy().sub(game.player.position));
@@ -1412,7 +1431,22 @@ class PlayerStanding extends Action {
                         }
                      } else if (!game.player.currFieldMove.equals("CUT")) {
                         if (game.player.currFieldMove.equals("SMASH")) {
-                           if (currTile.isSmashable) {
+                           boolean hardOre = currTile.nameUpper.startsWith("rock_ore_gold") || currTile.nameUpper.startsWith("rock_ore_crystal");
+                           boolean weak = game.player.hmPokemon == null ? Player.toolTier(game.player.currTool) < 2 : game.player.hmPokemon.hasEvo();
+                           if (currTile.isSmashable && hardOre && weak) {
+                              game.playerCanMove = false;
+                              game.insertAction(
+                                 new DisplayText(
+                                    game,
+                                    game.player.hmPokemon == null
+                                       ? "This ore is too hard! It needs an IRON PICK."
+                                       : game.player.hmPokemon.nickname.toUpperCase(Locale.ROOT) + " must be fully evolved to break this ore.",
+                                    null,
+                                    null,
+                                    new SetField(game, "playerCanMove", true, null)
+                                 )
+                              );
+                           } else if (currTile.isSmashable) {
                               Action action = new CutTreeAnim(game, game.map.tiles.get(pos), null);
                               game.playerCanMove = false;
                               currTile.items().remove("torch");

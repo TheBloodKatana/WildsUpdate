@@ -173,6 +173,19 @@ public class Tile {
             } else if (this.nameUpper.equals("gravestone2")) {
                this.items.put("hard stone", 1);
                this.items.put("life force", 1);
+            } else if (this.nameUpper.equals("rock_cave1")) {
+               this.items.put("hard stone", 1);
+            } else if (this.nameUpper.startsWith("rock_ore_copper")) {
+               this.items.put("copper ore", 1 + Game.rand.nextInt(2));
+            } else if (this.nameUpper.startsWith("rock_ore_iron")) {
+               this.items.put("iron ore", 1 + Game.rand.nextInt(2));
+            } else if (this.nameUpper.startsWith("rock_ore_gold")) {
+               this.items.put("gold ore", 1);
+               if (Game.rand.nextInt(4) == 0) {
+                  this.items.put("nugget", 1);
+               }
+            } else if (this.nameUpper.startsWith("rock_ore_crystal")) {
+               this.items.put("crystal ore", 1);
             } else if (this.nameUpper.equals("rock_volcano1")) {
                this.items.put("hard stone", 1);
                if (Game.rand.nextInt(10) == 0) {
@@ -348,7 +361,10 @@ public class Tile {
             this.isSolid = true;
          }
       } else if (!tileName.contains("cave1") && !tileName.contains("cave2")) {
-         if (tileName.equals("tree_large1")) {
+         if (tileName.startsWith("cave3_")) {
+            this.sprite = TextureCache.getTileSprite(tileName);
+            this.isSolid = tileName.contains("wall");
+         } else if (tileName.equals("tree_large1")) {
             if (color) {
                this.sprite = TextureCache.getTileSprite("tree_large1_color");
             } else {
@@ -1578,7 +1594,7 @@ public class Tile {
             this.isCuttable = false;
          }
 
-         if (this.nameUpper.equals("rock_ice2")) {
+         if (this.nameUpper.equals("rock_ice2") || this.nameUpper.startsWith("rock_ore_") || this.nameUpper.equals("rock_cave1")) {
             this.isSmashable = true;
             this.isCuttable = false;
          }
