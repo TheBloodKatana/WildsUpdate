@@ -161,6 +161,7 @@ class Npcs {
       int lastRomanceDay = -1;
       int lastConfessionDay = -1;
       String lastCatch;
+      String lastEvolved;
       int leg;
 
       NpcData() {
@@ -425,6 +426,14 @@ class Npcs {
       return after;
    }
 
+   /** "!" over a villager's head when talking to them would give you something. */
+   static boolean hasNews(Game game, Npc npc) {
+      if (Characters.isCore(npc.data.type)) {
+         return Characters.hasNews(game, npc);
+      }
+      return npc.data.friendship >= 3 && game.player.daysPassed - npc.data.lastGiftDay >= 3 && giftFor(npc.data.type) != null;
+   }
+
    static String giftFor(String type) {
       String[][] gifts = {
          {"merchant", "nugget:1"},
@@ -479,10 +488,17 @@ class Npcs {
       public Action.Layer layer = Action.Layer.map_131;
       HashMap<String, Texture> textures = new HashMap<>();
       TextureRegion region = new TextureRegion();
+      TextureRegion bang;
+      int checkTimer = 0;
+      java.util.HashSet<Npc> news = new java.util.HashSet<>();
 
       @Override
       public Action.Layer getLayer() {
          return this.layer;
+      }
+
+      Driver() {
+         this.bang = new TextureRegion(TextureCache.get(Gdx.files.internal("emotes.png")), 0, 0, 16, 16);
       }
 
       Texture tex(String type) {
@@ -517,6 +533,18 @@ class Npcs {
             this.region.setTexture(this.tex(n.data.type));
             this.region.setRegion(frame * 16, 0, 16, 16);
             game.mapBatch.draw(this.region, n.position.x, n.position.y + 4.0F);
+            if (this.news.contains(n) && (this.checkTimer / 20) % 2 == 0) {
+               game.mapBatch.draw(this.bang, n.position.x, n.position.y + 20.0F);
+            }
+         }
+         // Re-check who has news a couple of times a second (cheap, but not every frame).
+         if (this.checkTimer++ % 30 == 0) {
+            this.news.clear();
+            for (Npc n : game.map.npcs) {
+               if (hasNews(game, n)) {
+                  this.news.add(n);
+               }
+            }
          }
       }
 

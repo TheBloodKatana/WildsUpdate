@@ -203,6 +203,8 @@ class Characters {
 
    static HashMap<String, List<String>> byType;
    static List<String> starters;
+   static HashMap<String, List<String>> evolutions;
+   static java.util.HashSet<String> baseForms;
 
    static void loadTypeData() {
       if (byType != null) {
@@ -210,7 +212,21 @@ class Characters {
       }
       byType = new HashMap<>();
       starters = new ArrayList<>();
+      evolutions = new HashMap<>();
+      baseForms = new java.util.HashSet<>();
       try {
+         for (String line : Game.readLines(Gdx.files.internal("npc/evolutions.txt"))) {
+            if (line.startsWith("#") || !line.contains("|")) {
+               continue;
+            }
+            String[] parts = line.trim().split("\\|");
+            evolutions.put(parts[0], Arrays.asList(parts[1].split(",")));
+         }
+         for (String line : Game.readLines(Gdx.files.internal("npc/base_forms.txt"))) {
+            if (!line.trim().isEmpty()) {
+               baseForms.addAll(Arrays.asList(line.trim().split(",")));
+            }
+         }
          for (String line : Game.readLines(Gdx.files.internal("npc/types.txt"))) {
             if (line.startsWith("#") || !line.contains("|")) {
                continue;
@@ -249,7 +265,17 @@ class Characters {
       if (list == null || list.isEmpty()) {
          return "rattata";
       }
-      return list.get(Game.rand.nextInt(list.size()));
+      // Only first-stage Pokemon; they evolve as they level up.
+      ArrayList<String> base = new ArrayList<>();
+      for (String s : list) {
+         if (baseForms.contains(s)) {
+            base.add(s);
+         }
+      }
+      if (base.isEmpty()) {
+         base.addAll(list);
+      }
+      return base.get(Game.rand.nextInt(base.size()));
    }
 
    static String randomFor(Def def) {
@@ -301,7 +327,11 @@ class Characters {
          if (lv < target) {
             lv = Math.min(target, lv + 1 + Game.rand.nextInt(3));
          }
-         d.team.set(i, m[0] + ":" + lv);
+         String species = evolve(m[0], lv);
+         if (!species.equals(m[0])) {
+            d.lastEvolved = m[0] + ">" + species;
+         }
+         d.team.set(i, species + ":" + lv);
       }
       // Maybe catch something new.
       if (Game.rand.nextInt(100) < 35) {
@@ -321,6 +351,29 @@ class Characters {
          }
          d.lastCatch = caught.split(":")[0];
       }
+   }
+
+   /** Applies every evolution this level qualifies for (random branch, e.g. Eevee). */
+   static String evolve(String species, int level) {
+      loadTypeData();
+      for (int guard = 0; guard < 3; guard++) {
+         List<String> evos = evolutions.get(species);
+         if (evos == null) {
+            break;
+         }
+         ArrayList<String> ready = new ArrayList<>();
+         for (String e : evos) {
+            String[] p = e.split(":");
+            if (level >= Integer.valueOf(p[1])) {
+               ready.add(p[0]);
+            }
+         }
+         if (ready.isEmpty()) {
+            break;
+         }
+         species = ready.get(Game.rand.nextInt(ready.size()));
+      }
+      return species;
    }
 
    static String teamText(Npcs.Npc npc) {
@@ -359,7 +412,11 @@ class Characters {
       } else {
          line = pick(def.greet);
       }
-      if (d.lastCatch != null && Game.rand.nextInt(3) == 0) {
+      if (d.lastEvolved != null) {
+         String[] ev = d.lastEvolved.toUpperCase(Locale.ROOT).replace("_", " ").split(">");
+         line = "My " + ev[0] + " evolved into " + ev[1] + "! " + ("emma".equals(d.type) ? "Try to keep up." : "Amazing, right?");
+         d.lastEvolved = null;
+      } else if (d.lastCatch != null && Game.rand.nextInt(3) == 0) {
          line = "I caught a " + d.lastCatch.toUpperCase(Locale.ROOT).replace("_", " ") + " recently. "
             + ("emma".equals(d.type) ? "Jealous?" : "Isn't it great?");
          d.lastCatch = null;
@@ -475,6 +532,10 @@ class Characters {
    }
 
    static boolean questComplete(Game game, Npcs.Npc npc) {
+      return questComplete(game, npc, false);
+   }
+
+   static boolean questComplete(Game game, Npcs.Npc npc, boolean dryRun) {
       Player p = game.player;
       switch (npc.data.type) {
          case "emma": return countCaughtOfType(p, "DARK") >= 1;
@@ -483,8 +544,8 @@ class Characters {
          case "lavender": return countCaughtOfType(p, "GHOST") >= 3;
          case "locke": return countCaughtOfType(p, "BUG") + countCaughtOfType(p, "GRASS") >= 4;
          case "blue": return game.map.npcs.size() >= 5;
-         case "flambar": return take(p, "charcoal", 10);
-         case "willow": return has(p, "magnet", 4) && has(p, "metal coat", 2) && take(p, "magnet", 4) && take(p, "metal coat", 2);
+         case "flambar": return dryRun ? has(p, "charcoal", 10) : take(p, "charcoal", 10);
+         case "willow": return has(p, "magnet", 4) && has(p, "metal coat", 2) && (dryRun || take(p, "magnet", 4) && take(p, "metal coat", 2));
          default: return false;
       }
    }
@@ -518,6 +579,23 @@ class Characters {
          }
       }
       return "";
+   }
+
+   /** True when talking to this character would give you something new (shows "!"). */
+   static boolean hasNews(Game game, Npcs.Npc npc) {
+      Def def = DEFS.get(npc.data.type);
+      Npcs.NpcData d = npc.data;
+      if (d.questStage == 0 && d.friendship >= 3) {
+         return true;
+      }
+      if (d.questStage == 1 && questComplete(game, npc, true)) {
+         return true;
+      }
+      if (def.romanceable && !"partner".equals(d.relation) && d.romance >= 10 && d.friendship >= 10 && d.questStage == 2
+         && (d.lastConfessionDay < 0 || game.player.daysPassed - d.lastConfessionDay >= 7)) {
+         return true;
+      }
+      return d.lastEvolved != null;
    }
 
    // ------------------------------------------------------------------ romance

@@ -12,7 +12,8 @@ Legend: **[built]** works now, **[battles]** needs trainer battles (next milesto
 |---|---|
 | Arrival **[built]** | Like every villager: needs a free BED in a house you built. One arrival per morning. |
 | Portrait **[built]** | 64x64 portrait above the text box whenever they talk. |
-| Team **[built]** | Starts with 2 Pokemon. Every morning: levels rise toward (catch cap - 3); 35% chance to catch a new one from their affinity (Emma/Wood/Blue: anything). Max 6, weakest replaced. They tell you about new catches. |
+| Team **[built]** | Starts with 2 first-stage Pokemon. Every morning: levels rise toward (catch cap - 3); 35% chance to catch a new first-stage one from their affinity (Emma/Wood/Blue: anything). Members evolve when they reach the level (stone/trade/friendship evolutions use stand-in levels 32/38/25; branching ones like Eevee pick at random). Max 6, weakest replaced. They tell you about catches and evolutions. |
+| "!" marker **[built]** | A blinking "!" bubble over any villager with something for you: a quest to offer or turn in, a gift ready, an evolution to brag about, or a confession. |
 | Friendship 0-10 **[built]** | +1 first talk each day, +2 per gift (one gift per day), +3 for finishing their quest. |
 | Romance 0-10 **[built]** | Emma, Wood, Lavender only. +1 per daily talk once friendship is 5+, +1 per gift, +2 for their quest. |
 | Gifts **[built]** | After talking: "Give a gift?" opens a GIVE A GIFT menu listing the things they love. |
@@ -84,6 +85,15 @@ Legend: **[built]** works now, **[battles]** needs trainer battles (next milesto
 - **Loves:** Miracle Seed, Hard Stone, Silver Powder, Damp Soil.
 - **Quest "Roots" [built]:** catch 4 Bug or Grass types. Reward: Miracle Seed.
 - **Later:** apricorn and berry trees near his house grow twice as fast; Grass or Rock Gym Leader.
+
+## League Director [battles] (new NPC, after trainer battles)
+A dedicated NPC who runs everything League-related, separate from Blue (who stays the quest giver and
+rival/Champion figure). Arrives once trainer battles exist and Blue's "Village" quest is done.
+- Unlocks the GYM building (BUILD menu) and certifies each gym you build.
+- Lets you appoint leaders from your villagers (any core character, or generic ones) and pick each gym's type.
+- Tracks badges; each badge raises the catch cap (alongside bosses).
+- After 8 gyms: unlocks the Elite Four hall, appoint 4 members + a Champion.
+- Schedules rematches and runs the post-game (Red's challenge).
 
 ## League potential [battles]
 Any core character can take a slot. Natural fits: Flambar (Fire), Willow (Electric), Locke (Grass/Rock),
