@@ -74,8 +74,32 @@ release (by SheerSt) for personal modding only.
   losing heals you as a normal whiteout and they gloat next time. Win/loss records are saved.
   Gifts: picking a liked item you own gives it; the menu closes and the talk continues.
 
+- Daily routines (Routines.java): the day has MORNING / NOON / EVENING / NIGHT. Every NPC has a
+  place for each (tall grass, shore, trees, rocks, a cave mouth, the town plaza, home, inside).
+  They walk there, or appear there when nobody's looking. Emma trains in the grass at dawn and
+  races on the beach at dusk, Wood keeps night watch, Lavender walks at midnight, Willow goes
+  wherever her latest idea takes her, Gym Leaders hold court in their town at noon. What they
+  say depends on where they are. Teams come up naturally in chat, no more stat readouts.
+- Towns (Cities.java): the CITY MANAGER (moves in once you have 2 houses) spots 3+ houses close
+  together and offers to found a village; you pick a name and a sign goes up. 6 houses makes a
+  TOWN, 10 a CITY. Town centers are where villagers gather.
+- League (League.java): the LEAGUE DIRECTOR arrives once a town exists. Villages hold 1 gym,
+  towns 2, cities 3. He appoints core characters you've beaten who trust you (friendship 5+)
+  as Gym Leaders. Their gym team is raised to your catch cap; each badge adds +5 to the cap.
+  Elite Four after 8 badges is next.
+- Trainers (Trainers.java): 16 trainer classes (Youngster, Lass, Bug Catcher, Camper,
+  Picnicker, Bird Keeper, Black Belt, Cooltrainer, Beauty, Gentleman, Super Nerd, Pokemaniac,
+  Psychic, Sage, Rocket Grunt, Biker). A few wander the island every day and challenge you on
+  sight (prize items); beat a class once and one may settle in a free house for daily rematches.
+- Jobs: BALL MAKER (apricorn balls), BLACKSMITH (iron tools), MINER (ore, fossils), FARMER
+  (berries, milk), COOK (juice, honey), CARPENTER (logs, bedding), BREEDER (raises your weakest
+  Pokemon a level once a day). Each needs a free bed and has its own unlock.
+- Townsfolk: 12 filler residents (Gramps, Kid, Gossip, Tourist, DJ...) fill founded towns, no
+  bed needed (about one per two houses). They gossip about the others and give you junk weekly.
+
 ## Dev mode keys (run with `dev`)
-- F2: spawn the next villager on the faced tile (no house needed)
+- F1: found a town where you stand (plus its townsfolk)
+- F2: spawn the next villager on the faced tile (no house needed; stays put)
 - F3: force a villager arrival check (needs a free bed)
 - F4: jump next to the map's right edge (to test island travel)
 - F5: place a shipwreck crate on the faced tile
@@ -83,3 +107,4 @@ release (by SheerSt) for personal modding only.
 - F7: spawn a boss two tiles ahead
 - F8: give a Pokedex, a SAILBOAT and 20 of each new ball
 - F9 / F10: place a PC / healing machine on the faced tile
+- F12: put a wandering trainer 4 tiles ahead, facing you

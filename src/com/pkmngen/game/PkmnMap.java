@@ -67,6 +67,7 @@ public class PkmnMap {
    public Route pcRoute;
    // Special species for islands away from home (see Islands.java); null until rolled.
    public ArrayList<String> islandSpecials;
+   public ArrayList<Cities.CityData> cities = new ArrayList<>();
    // Villagers living on this island (see Npcs.java).
    public ArrayList<Npcs.Npc> npcs;
 
@@ -1440,6 +1441,7 @@ public class PkmnMap {
          Network.MapSaveData mapData = Save.readData(this.id + ".sav/map" + this.currMapId, Network.MapSaveData.class);
          this.islandSpecials = mapData.islandSpecials;
          this.npcs = Npcs.load(mapData.npcs);
+         this.cities = mapData.cities != null ? mapData.cities : new ArrayList<>();
          this.overworldTiles.clear();
          this.bottomLeft = new Vector2();
          this.topRight = new Vector2();

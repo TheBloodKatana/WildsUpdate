@@ -67,6 +67,14 @@ class Npcs {
          .trade("escape rope", 1, "grass", 2)
          .trade("berry juice", 2, "berry seed", 3)
          .trade("rare candy", 1, "nugget", 1));
+      add(new Type("citymanager", "CITY MANAGER", new String[]{"GRANT", "MAVIS", "ORSON", "TESS"},
+            "Good land, good people. That's all a town needs.",
+            "I've got plans for this place. Big plans.",
+            "Every great city started as a couple of huts."));
+      add(new Type("director", "LEAGUE DIRECTOR", new String[]{"AUGUST", "MIRA", "VALE", "DESMOND"},
+            "Strong trainers make strong towns.",
+            "A LEAGUE isn't built in a day.",
+            "I'm always looking for talent."));
       for (String id : new String[]{"emma", "wood", "flambar", "willow", "locke", "lavender", "bruno", "blue"}) {
          Characters.Def def = Characters.DEFS.get(id);
          add(new Type(id, def.name, new String[]{def.name}, def.greet));
@@ -104,6 +112,7 @@ class Npcs {
             "I have watched these islands for a long time.",
             "Mighty POKéMON grow stronger each time one falls.",
             "Be careful out there, young one."));
+      Trainers.register();
    }
 
    static void add(Type t) {
@@ -127,12 +136,14 @@ class Npcs {
       }
       switch (id) {
          case "merchant": return true;
+         case "citymanager": return Cities.houseDoors(game).size() >= 2;
+         case "director": return !Cities.list(game).isEmpty();
          case "nurse": return p.dexCaught.size() >= 10;
          case "hiker": return p.visitedCave;
          case "fisher": return p.hasItem("raft") || p.hasItem("old rod") || p.hasItem("good rod") || p.hasItem("super rod");
          case "scientist": return p.dexSeen.size() >= 30;
          case "elder": return p.bossesBeaten >= 1;
-         default: return false;
+         default: return Trainers.unlocked(game, id);
       }
    }
 
@@ -167,6 +178,9 @@ class Npcs {
       int losses;
       int lastBattleDay = -1;
       String pendingLine;
+      String role;      // "gym" once appointed by the League Director
+      String gymCity;   // gym leaders: their town; townsfolk: the town they live in
+      int wanderDay = -1;  // wandering trainers: the day they're out (they leave after)
 
       NpcData() {
       }
@@ -179,6 +193,10 @@ class Npcs {
       String dir = "down";
       int moveTimer = 0;
       int idleTimer = 60;
+      Vector2 anchor;       // where their routine wants them right now
+      String anchorKey;
+      int stuck = 0;
+      boolean pinned = false;   // dev spawns stand still until the game is reloaded
 
       Npc(NpcData data) {
          this.data = data;
@@ -213,10 +231,13 @@ class Npcs {
    }
 
    static Npc at(Game game, Vector2 pos) {
-      if (game.map.npcs == null || !visible(game)) {
+      if (game.map.npcs == null || game.map.tiles != game.map.overworldTiles) {
          return null;
       }
       for (Npc n : game.map.npcs) {
+         if (!Routines.outside(game, n)) {
+            continue;
+         }
          if (n.target.epsilonEquals(pos, 1.0F) || n.position.epsilonEquals(pos, 1.0F)) {
             return n;
          }
@@ -234,7 +255,9 @@ class Npcs {
          n.position.set(n.home());
          n.target.set(n.home());
          Characters.daily(game, n, newDay);
+         Trainers.daily(game, n, newDay);
       }
+      Trainers.update(game, newDay);
       if (!newDay && !game.map.npcs.isEmpty()) {
          return;
       }
@@ -344,7 +367,7 @@ class Npcs {
       if (t == null || t.isSolid || t.isWater || t.isLedge || t.nameUpper.contains("door") || t.name.contains("door")) {
          return false;
       }
-      if (p.dst(npc.home()) > 80.0F || p.epsilonEquals(game.player.position, 1.0F) || game.map.pokemon.containsKey(p)) {
+      if (p.epsilonEquals(game.player.position, 1.0F) || game.map.pokemon.containsKey(p)) {
          return false;
       }
       for (Npc other : game.map.npcs) {
@@ -377,7 +400,26 @@ class Npcs {
          game.insertAction(Characters.talk(game, npc, new SetField(game, "playerCanMove", true, null)));
          return true;
       }
+      if (Trainers.isFolk(npc.data.type)) {
+         game.playerCanMove = false;
+         game.insertAction(Trainers.folkTalk(game, npc, new SetField(game, "playerCanMove", true, null)));
+         return true;
+      }
+      if (Trainers.isWanderer(npc)) {
+         if (npc.data.lastBattleDay != player.daysPassed) {
+            Trainers.challenge(game, npc);
+         } else {
+            game.playerCanMove = false;
+            game.insertAction(new DisplayText(game, Characters.T(npc.fullName() + " - " + Trainers.winLine(npc)), null, null,
+               new SetField(game, "playerCanMove", true, null)));
+         }
+         return true;
+      }
       String line = type.lines[Game.rand.nextInt(type.lines.length)];
+      String routineLine = Routines.line(game, npc);
+      if (routineLine != null && Game.rand.nextBoolean()) {
+         line = routineLine;
+      }
       String hearts = npc.data.friendship >= 8 ? " We're close friends now!" : "";
       game.playerCanMove = false;
       Action end = new SetField(game, "playerCanMove", true, null);
@@ -387,6 +429,10 @@ class Npcs {
    }
 
    static Action service(Game game, Npc npc, Action end) {
+      Action special = Trainers.service(game, npc, end);
+      if (special != null) {
+         return special;
+      }
       Player player = game.player;
       Type type = npc.type();
       // Daily gift once friendship is high enough.
@@ -424,6 +470,12 @@ class Npcs {
             }, new DisplayText(game, Characters.T("Your POKéMON are fighting fit!"), "fanfare1.ogg", null, after))),
                new DisplayText.Clear(game, after)));
       }
+      if (npc.data.type.equals("citymanager")) {
+         return Cities.managerTalk(game, npc, after);
+      }
+      if (npc.data.type.equals("director")) {
+         return League.directorTalk(game, npc, after);
+      }
       if (npc.data.type.equals("elder")) {
          return new DisplayText(game, Characters.T(bossHint(game)), null, null, after);
       }
@@ -434,6 +486,15 @@ class Npcs {
    static boolean hasNews(Game game, Npc npc) {
       if (Characters.isCore(npc.data.type)) {
          return Characters.hasNews(game, npc);
+      }
+      if (Trainers.hasNews(game, npc)) {
+         return true;
+      }
+      if (npc.data.type.equals("citymanager") && Cities.hasNews(game)) {
+         return true;
+      }
+      if (npc.data.type.equals("director") && League.hasNews(game, npc)) {
+         return true;
       }
       return npc.data.friendship >= 3 && game.player.daysPassed - npc.data.lastGiftDay >= 3 && giftFor(npc.data.type) != null;
    }
@@ -519,10 +580,16 @@ class Npcs {
             game.insertAction(new DisplayText(game, Characters.T(pendingText), "fanfare1.ogg", null, new SetField(game, "playerCanMove", true, null)));
             pendingText = null;
          }
-         if (!visible(game)) {
+         if (game.map.tiles != game.map.overworldTiles) {
             return;
          }
          for (Npc n : game.map.npcs) {
+            if (!Routines.outside(game, n)) {
+               continue;
+            }
+            if (Trainers.checkSight(game, n)) {
+               continue;
+            }
             this.move(game, n);
             int frame = Arrays.asList("down", "up", "left", "right").indexOf(n.dir);
             if (n.moveTimer > 4 && n.moveTimer < 12) {
@@ -545,6 +612,9 @@ class Npcs {
          if (this.checkTimer++ % 30 == 0) {
             this.news.clear();
             for (Npc n : game.map.npcs) {
+               if (!Routines.outside(game, n)) {
+                  continue;
+               }
                if (hasNews(game, n)) {
                   this.news.add(n);
                }
@@ -572,12 +642,42 @@ class Npcs {
             n.idleTimer = Math.max(n.idleTimer, 90);
             return;
          }
+         if (n.pinned) {
+            return;
+         }
+         Vector2 anchor = Routines.anchor(game, n);
+         boolean far = anchor != null && n.position.dst(anchor) > 3 * 16;
+         // Off on their routine: if nobody would see it, they just get there.
+         if (far && !Routines.onScreen(game, n.position) && !Routines.onScreen(game, anchor)) {
+            n.position.set(anchor);
+            n.target.set(anchor);
+            n.data.x = anchor.x;
+            n.data.y = anchor.y;
+            n.stuck = 0;
+            return;
+         }
          if (--n.idleTimer > 0 || !game.playerCanMove) {
             return;
          }
-         n.idleTimer = 120 + Game.rand.nextInt(180);
+         n.idleTimer = far ? 20 : 120 + Game.rand.nextInt(180);
          String[] dirs = {"up", "down", "left", "right"};
          String dir = dirs[Game.rand.nextInt(4)];
+         if (far) {
+            // Head toward the spot along the longer axis (sometimes the other one, to get around things).
+            float dx = anchor.x - n.position.x;
+            float dy = anchor.y - n.position.y;
+            boolean horiz = Math.abs(dx) > Math.abs(dy);
+            if (n.stuck > 0 && Game.rand.nextBoolean()) {
+               horiz = !horiz;
+            }
+            if (n.stuck > 3) {
+               dir = dirs[Game.rand.nextInt(4)];
+            } else if (horiz) {
+               dir = dx > 0 ? "right" : "left";
+            } else {
+               dir = dy > 0 ? "up" : "down";
+            }
+         }
          n.dir = dir;
          Vector2 next = n.position.cpy();
          if (dir.equals("up")) {
@@ -589,10 +689,48 @@ class Npcs {
          } else {
             next.x += 16;
          }
-         if (walkable(game, n, next)) {
+         // While hanging around their spot they stay within a few tiles of it.
+         boolean inRange = far || anchor == null || next.dst(anchor) <= 4 * 16;
+         if (inRange && walkable(game, n, next)) {
+            n.stuck = 0;
             n.target.set(next);
             n.moveTimer = 16;
             n.data.leg = 1 - n.data.leg;
+         } else if (far) {
+            n.stuck++;
+            if (n.stuck > 12) {
+               // Truly stuck: wait until the player looks away (the off-screen hop above).
+               n.idleTimer = 120;
+            }
+         }
+      }
+   }
+
+   /** "!" over a trainer who just spotted you, then the next action. */
+   static class Bang extends Action {
+      public Action.Layer layer = Action.Layer.map_131;
+      Npc npc;
+      int timer;
+      TextureRegion region;
+
+      Bang(Npc npc, int frames, Action next) {
+         this.npc = npc;
+         this.timer = frames;
+         this.nextAction = next;
+         this.region = new TextureRegion(TextureCache.get(Gdx.files.internal("emotes.png")), 0, 0, 16, 16);
+      }
+
+      @Override
+      public Action.Layer getLayer() {
+         return this.layer;
+      }
+
+      @Override
+      public void step(Game game) {
+         game.mapBatch.draw(this.region, this.npc.position.x, this.npc.position.y + 20.0F);
+         if (--this.timer <= 0) {
+            game.actionStack.remove(this);
+            game.insertAction(this.nextAction);
          }
       }
    }

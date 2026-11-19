@@ -89,6 +89,7 @@ public class Player {
    public java.util.HashSet<String> dexCaught = new java.util.HashSet<>();
    // Boss progression (see Boss.java)
    public java.util.HashSet<String> unlocks = new java.util.HashSet<>();
+   public ArrayList<String> badges = new ArrayList<>();
    public HashMap<String, Integer> bossDefeats = new HashMap<>();
    public HashMap<String, Integer> bossRespawnDay = new HashMap<>();
    public HashMap<String, String> bossSpots = new HashMap<>();
@@ -101,7 +102,7 @@ public class Player {
 
    /** Highest level of wild Pokemon you can catch. Raised by beating bosses. */
    public int catchLevelCap() {
-      return Math.min(100, Boss.BASE_CAP + Boss.CAP_PER_BOSS * this.bossesBeaten);
+      return Math.min(100, Boss.BASE_CAP + Boss.CAP_PER_BOSS * this.bossesBeaten + League.CAP_PER_BADGE * this.badges.size());
    }
 
    /** Folds regional forms / letters into their base species id. */
@@ -735,6 +736,9 @@ public class Player {
          }
          if (pd.dexCaught != null) {
             this.dexCaught.addAll(pd.dexCaught);
+         }
+         if (pd.badges != null) {
+            this.badges = new ArrayList<>(pd.badges);
          }
          if (pd.unlocks != null) {
             this.unlocks.addAll(pd.unlocks);

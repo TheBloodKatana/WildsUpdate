@@ -18,14 +18,22 @@ class TrainerBattle {
    ArrayList<Pokemon> team = new ArrayList<>();
    int index = 0;
    boolean firstRound = true;
+   boolean gym = false;
 
    TrainerBattle(Npcs.Npc npc) {
+      this(npc, false, 0);
+   }
+
+   /** gym: their team is brought up to at least minLevel (the player's catch cap). */
+   TrainerBattle(Npcs.Npc npc, boolean gym, int minLevel) {
       this.npc = npc;
-      this.name = npc.fullName();
+      this.gym = gym;
+      this.name = gym ? "LEADER " + npc.fullName() : npc.fullName();
       for (String member : npc.data.team) {
          String[] p = member.split(":");
          try {
-            this.team.add(new Pokemon(p[0], Integer.valueOf(p[1]), Pokemon.Generation.CRYSTAL));
+            int lv = Math.max(Integer.valueOf(p[1]), minLevel);
+            this.team.add(new Pokemon(gym ? Characters.evolve(p[0], lv) : p[0], lv, Pokemon.Generation.CRYSTAL));
          } catch (Exception e) {
             System.out.println("Couldn't build " + member + " for " + this.name);
          }
@@ -37,8 +45,14 @@ class TrainerBattle {
    }
 
    static void start(Game game, Npcs.Npc npc) {
-      Characters.daily(game, npc, false); // repairs unsupported team members
-      TrainerBattle tb = new TrainerBattle(npc);
+      start(game, npc, false);
+   }
+
+   static void start(Game game, Npcs.Npc npc, boolean gym) {
+      if (Characters.isCore(npc.data.type)) {
+         Characters.daily(game, npc, false); // repairs unsupported team members
+      }
+      TrainerBattle tb = new TrainerBattle(npc, gym, gym ? game.player.catchLevelCap() : 0);
       if (tb.team.isEmpty()) {
          game.playerCanMove = true;
          return;
@@ -91,9 +105,14 @@ class TrainerBattle {
          d.romance = Math.min(10, d.romance + ("partner".equals(d.relation) ? 0 : 1));
       }
       Characters.Def def = Characters.DEFS.get(d.type);
-      String line = def != null && def.winLine != null ? def.name + " - " + def.winLine : this.name + " - You win!";
+      String line = def != null && def.winLine != null ? def.name + " - " + def.winLine : this.npc.fullName() + " - " + Trainers.winLine(this.npc);
+      Action done = new RunCode(() -> game.battle.trainer = null, null);
+      if (this.gym) {
+         done = League.awardBadge(game, this.npc, done);
+      }
+      done = Trainers.prize(game, this.npc, done);
       return new DisplayText(game, Characters.T("You defeated " + this.name + "!"), "fanfare1.ogg", null,
-         new DisplayText(game, Characters.T(line), null, null, new RunCode(() -> game.battle.trainer = null, null)));
+         new DisplayText(game, Characters.T(line), null, null, done));
    }
 
    /** Called when the player runs out of Pokemon. */

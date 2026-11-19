@@ -300,10 +300,42 @@ class PlayerStanding extends Action {
             d.y = d.homeY = spot.y;
             d.bedLayer = -1;
             Npcs.Npc devNpc = new Npcs.Npc(d);
+            devNpc.pinned = true;
+            devNpc.dir = Player.oppDirs.get(game.player.dirFacing);
             game.map.npcs.add(devNpc);
             Characters.daily(game, devNpc, false);
+            Trainers.daily(game, devNpc, false);
             Npcs.ensureDriver(game);
          }
+      }
+
+      // Dev mode: F12 puts a wandering trainer 4 tiles ahead, looking at you. F1 founds a town here.
+      if (game.debugInputEnabled && game.playerCanMove && game.map.tiles == game.map.overworldTiles
+         && Gdx.input.isKeyJustPressed(com.badlogic.gdx.Input.Keys.F12)) {
+         Vector2 dv = Trainers.dirVec(game.player.dirFacing);
+         Vector2 spot = game.player.position.cpy().add(dv.x * 4, dv.y * 4);
+         java.util.List<String> ids = new ArrayList<>(Trainers.CLASSES.keySet());
+         Trainers.Cls c = Trainers.CLASSES.get(ids.get(Game.rand.nextInt(ids.size())));
+         Npcs.NpcData d = new Npcs.NpcData();
+         d.type = c.id;
+         d.name = c.names[0];
+         d.x = d.homeX = spot.x;
+         d.y = d.homeY = spot.y;
+         d.bedLayer = -1;
+         d.wanderDay = game.player.daysPassed;
+         d.team = Trainers.makeTeam(game, c, 2, Trainers.trainerLevel(game, new java.util.Random()));
+         Npcs.Npc devNpc = new Npcs.Npc(d);
+         devNpc.dir = Player.oppDirs.get(game.player.dirFacing);
+         devNpc.idleTimer = 99999;
+         game.map.npcs.add(devNpc);
+         Npcs.ensureDriver(game);
+      }
+      if (game.debugInputEnabled && game.playerCanMove && game.map.tiles == game.map.overworldTiles
+         && Gdx.input.isKeyJustPressed(com.badlogic.gdx.Input.Keys.F1)) {
+         Cities.CityData town = Cities.found(game, game.player.position.cpy(), Cities.suggestName(game, 0));
+         Trainers.spawnFolk(game);
+         Npcs.pendingText = Cities.title(town) + " was founded!";
+         Npcs.ensureDriver(game);
       }
 
       // Dev mode: F3 forces a villager arrival check (needs a free bed in a house).

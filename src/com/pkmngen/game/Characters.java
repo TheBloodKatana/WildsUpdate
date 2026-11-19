@@ -181,7 +181,7 @@ class Characters {
       d.friendly = new String[]{"Not bad, rookie. Not bad.", "Build gyms, find leaders. That's how it starts.",
          "Someday you might even beat me. Someday."};
       d.questIntro = "Get 5 people living on this island. Then we can talk about a LEAGUE.";
-      d.questDone = "A real village! Okay, I'm impressed. Next: GYMS. That part's coming soon.";
+      d.questDone = "A real village! Okay, I'm impressed. Next up: GYMS. Found a town and a LEAGUE DIRECTOR will show up.";
    }
 
    /** Converts normal apostrophes to the GSC font's glyphs: 's -> one glyph, n't -> one glyph, other ' -> plain mark. */
@@ -433,6 +433,37 @@ class Characters {
       return species;
    }
 
+   static final HashMap<String, String[]> TEAM_CHAT = new HashMap<>();
+   static {
+      TEAM_CHAT.put("emma", new String[]{"%s is itching for a rematch. Just saying.", "Bet my %s could take your whole team.", "%s and I trained all morning. You?"});
+      TEAM_CHAT.put("wood", new String[]{"%s keeps watch with me. Good partner.", "%s and I train every day. You should too.", "Nobody messes with you while %s and I are around."});
+      TEAM_CHAT.put("flambar", new String[]{"%s loves sitting by the campfire. Me too!", "I made %s a little scarf. Don't laugh!", "%s gets so serious before a battle. Like me, I guess."});
+      TEAM_CHAT.put("willow", new String[]{"Did you know %s can... wait, I forgot. It was cool though!", "I'm charting %s's sparks. For science!", "%s zapped my notes again. Totally worth it."});
+      TEAM_CHAT.put("locke", new String[]{"%s found something under a rock today. Good eye.", "The soil here suits %s.", "%s doesn't talk much either. We get along."});
+      TEAM_CHAT.put("lavender", new String[]{"%s keeps hiding in my shadow. Isn't that cute?", "%s whispered something to me last night. Hee hee.", "Want to hold %s? It only bites a little."});
+      TEAM_CHAT.put("bruno", new String[]{"%s hasn't lost in a while. Want to change that?", "Keep your distance. %s bites.", "%s and I don't do friendly."});
+      TEAM_CHAT.put("blue", new String[]{"%s's been helping me scout the island.", "Even %s thinks this place needs more houses.", "%s is the reason I'm still in one piece."});
+   }
+
+   /** A natural remark about their strongest Pokemon, or null. */
+   static String teamChat(Npcs.Npc npc) {
+      if (npc.data.team == null || npc.data.team.isEmpty()) {
+         return null;
+      }
+      String best = null;
+      int bestLv = -1;
+      for (String m : npc.data.team) {
+         String[] p = m.split(":");
+         int lv = Integer.valueOf(p[1]);
+         if (lv > bestLv) {
+            bestLv = lv;
+            best = p[0];
+         }
+      }
+      String[] lines = TEAM_CHAT.getOrDefault(npc.data.type, new String[]{"%s and I are doing great!"});
+      return String.format(pick(lines), best.toUpperCase(Locale.ROOT).replace("_", " "));
+   }
+
    static String teamText(Npcs.Npc npc) {
       StringBuilder sb = new StringBuilder();
       for (String m : npc.data.team) {
@@ -469,6 +500,19 @@ class Characters {
       } else {
          line = pick(def.greet);
       }
+      // Now and then they mention their partner Pokemon or what they're up to instead.
+      int roll = Game.rand.nextInt(10);
+      if (roll < 3) {
+         String chat = teamChat(npc);
+         if (chat != null) {
+            line = chat;
+         }
+      } else if (roll < 6) {
+         String r = Routines.line(game, npc);
+         if (r != null) {
+            line = r;
+         }
+      }
       if (d.lastEvolved != null) {
          String[] ev = d.lastEvolved.toUpperCase(Locale.ROOT).replace("_", " ").split(">");
          line = "My " + ev[0] + " evolved into " + ev[1] + "! " + ("emma".equals(d.type) ? "Try to keep up." : "Amazing, right?");
@@ -494,7 +538,6 @@ class Characters {
       next = giftPrompt(game, npc, next);
       next = questStep(game, npc, next);
       next = confessionStep(game, npc, next);
-      next = new DisplayText(game, T(name + "My team - " + teamText(npc) + "."), null, null, next);
       Action first = new DisplayText(game, T(name + line), null, null, next);
       game.insertAction(new Portrait(def.id));
       return first;
@@ -506,6 +549,10 @@ class Characters {
       boolean canFight = false;
       for (Pokemon p : game.player.pokemon) {
          canFight |= !p.isEgg && p.currentStats.get("hp") > 0;
+      }
+      Action gym = canFight ? League.gymPrompt(game, npc, end) : null;
+      if (gym != null) {
+         return gym;
       }
       if (!canFight || !TrainerBattle.canBattle(npc) || npc.data.lastBattleDay == game.player.daysPassed || def.battleAsk == null) {
          return end;
@@ -605,7 +652,12 @@ class Characters {
          return new DisplayText(game, T(def.name + " - " + def.questDone), "fanfare1.ogg", null,
             new DisplayText(game, T(reward), null, null, next));
       }
-      return new DisplayText(game, T(def.name + " - Still waiting on that favor. " + def.questIntro), null, null, next);
+      // Only bring it up now and then, and not word for word every time.
+      if (Game.rand.nextInt(3) != 0) {
+         return next;
+      }
+      String[] nudges = {"Don't forget that favor, okay?", "Still thinking about what I asked you?", "No rush on that favor. Well... some rush."};
+      return new DisplayText(game, T(def.name + " - " + pick(nudges)), null, null, next);
    }
 
    static boolean questComplete(Game game, Npcs.Npc npc) {
@@ -670,6 +722,9 @@ class Characters {
       }
       if (def.romanceable && !"partner".equals(d.relation) && d.romance >= 10 && d.friendship >= 10 && d.questStage == 2
          && (d.lastConfessionDay < 0 || game.player.daysPassed - d.lastConfessionDay >= 7)) {
+         return true;
+      }
+      if (League.isLeader(npc) && !League.hasBadge(game, npc)) {
          return true;
       }
       return d.lastEvolved != null;

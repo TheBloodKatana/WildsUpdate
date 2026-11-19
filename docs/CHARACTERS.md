@@ -86,7 +86,7 @@ Legend: **[built]** works now, **[battles]** needs trainer battles (next milesto
 - **Quest "Roots" [built]:** catch 4 Bug or Grass types. Reward: Miracle Seed.
 - **Later:** apricorn and berry trees near his house grow twice as fast; Grass or Rock Gym Leader.
 
-## League Director [battles] (new NPC, after trainer battles)
+## League Director [built: appointing gym leaders + badges; Elite Four later]
 A dedicated NPC who runs everything League-related, separate from Blue (who stays the quest giver and
 rival/Champion figure). Arrives once trainer battles exist and Blue's "Village" quest is done.
 - Unlocks the GYM building (BUILD menu) and certifies each gym you build.

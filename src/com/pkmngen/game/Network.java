@@ -274,6 +274,7 @@ public class Network {
       HashMap<Vector2, Network.PokemonData> overworldPokemon = new HashMap<>();
       ArrayList<String> islandSpecials;
       ArrayList<Npcs.NpcData> npcs;
+      ArrayList<Cities.CityData> cities;
 
       public MapSaveData() {
       }
@@ -281,6 +282,7 @@ public class Network {
       public MapSaveData(Game game) {
          this.islandSpecials = game.map.islandSpecials;
          this.npcs = Npcs.save(game);
+         this.cities = game.map.cities;
          this.mapTiles.timeOfDay = game.map.timeOfDay;
          this.mapTiles.dayTimer = CycleDayNight.dayTimer;
 
@@ -410,6 +412,7 @@ public class Network {
       ArrayList<String> dexSeen;
       ArrayList<String> dexCaught;
       ArrayList<String> unlocks;
+      ArrayList<String> badges;
       HashMap<String, Integer> bossDefeats;
       HashMap<String, Integer> bossRespawnDay;
       HashMap<String, String> bossSpots;
@@ -428,6 +431,7 @@ public class Network {
             player.syncDexWithOwnedPokemon(Game.staticGame);
          }
          this.unlocks = new ArrayList<>(player.unlocks);
+         this.badges = new ArrayList<>(player.badges);
          this.bossDefeats = new HashMap<>(player.bossDefeats);
          this.bossRespawnDay = new HashMap<>(player.bossRespawnDay);
          this.bossSpots = new HashMap<>(player.bossSpots);
