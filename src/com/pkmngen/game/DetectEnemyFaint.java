@@ -44,6 +44,10 @@ class DetectEnemyFaint extends Action {
          if (game.battle.oppPokemon.isBoss) {
             nextAction.append(new DisplayText(game, Boss.onDefeated(game, game.battle.oppPokemon), "fanfare1.ogg", null, null));
          }
+         String drop = Drops.roll(game, game.battle.oppPokemon);
+         if (drop != null) {
+            nextAction.append(new DisplayText(game, drop, "fanfare1.ogg", null, null));
+         }
 
          if (this.checkEndOfBattle) {
             nextAction.append(new CheckEndOfBattle(null));

@@ -414,6 +414,7 @@ class DrawItemMenuGen2 extends Menu {
       itemDescriptions.put("pokédex", "Logs POKéMON seen and caught.");
       itemDescriptions.put("stone axe", "Chops small trees without a POKéMON.");
       itemDescriptions.put("stone pick", "Breaks rocks without a POKéMON.");
+      itemDescriptions.put("nugget", "A nugget of pure gold. Traders love it.");
       itemDescriptions.put("stone shovel", "Digs terrain without a POKéMON.");
       itemDescriptions.put("iron axe", "Chops any tree. May yield extra.");
       itemDescriptions.put("iron pick", "Breaks rocks. May yield extra.");

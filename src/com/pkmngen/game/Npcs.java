@@ -323,6 +323,10 @@ class Npcs {
             if (!tile.nameUpper.startsWith("house_bed1")) {
                continue;
             }
+            // your own bed is yours
+            if (game.player.spawnIndex == layer && tile.position.epsilonEquals(game.player.spawnLoc, 1.0F)) {
+               continue;
+            }
             boolean taken = false;
             for (Npc n : game.map.npcs) {
                if (n.data.bedLayer == layer && n.data.bedX == tile.position.x && n.data.bedY == tile.position.y) {
