@@ -29,7 +29,21 @@ class CaveGen {
    }
 
    static String key(Vector2 pos) {
-      return (int)pos.x + "," + (int)pos.y;
+      return prefix(Game.staticGame) + (int)pos.x + "," + (int)pos.y;
+   }
+
+   /** Home island keeps unprefixed keys (older saves); other islands use "mapId|". */
+   static String prefix(Game game) {
+      String id = game.map.currMapId;
+      return id == null || id.equals("0,0") ? "" : id + "|";
+   }
+
+   static boolean placedHere(Game game) {
+      String p = prefix(game);
+      if (p.isEmpty()) {
+         return game.player.cavesPlaced;
+      }
+      return game.player.caveEntrances.containsKey(p + "placed");
    }
 
    static boolean isEntrance(Game game, Tile tile) {
@@ -39,7 +53,7 @@ class CaveGen {
    // ------------------------------------------------------------------ entrances
 
    static void placeEntrances(Game game) {
-      if (game.player.cavesPlaced || game.map.overworldTiles == null) {
+      if (placedHere(game) || game.map.overworldTiles == null) {
          return;
       }
       ArrayList<Tile> candidates = new ArrayList<>();
@@ -80,7 +94,11 @@ class CaveGen {
          game.player.caveEntrances.put(key(tile.position), i);
          System.out.println("Cave " + i + " entrance at " + tile.position);
       }
-      game.player.cavesPlaced = true;
+      if (prefix(game).isEmpty()) {
+         game.player.cavesPlaced = true;
+      } else {
+         game.player.caveEntrances.put(prefix(game) + "placed", -1);
+      }
    }
 
    /** Returns the interior index for this entrance, generating the cave on first visit. */

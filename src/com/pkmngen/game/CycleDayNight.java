@@ -79,6 +79,7 @@ class CycleDayNight extends Action {
       // Shortly after a world loads: make sure fixed bosses exist and start drawing auras.
       if (this.bossInitTimer > 0 && --this.bossInitTimer == 0 && game.map != null && game.player != null) {
          CaveGen.placeEntrances(game);
+         Islands.init(game);
          Shipwreck.update(game, false);
          Boss.update(game, false);
          if (Boss.auraAction == null || !game.actionStack.contains(Boss.auraAction)) {

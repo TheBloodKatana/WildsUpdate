@@ -1566,6 +1566,11 @@ public class Player {
       dexCraft.requirements.add(new Player.Craft("clear glass", 1));
       dexCraft.requirements.add(new Player.Craft("thin paper", 2));
       crafts.add(dexCraft);
+      // Vessels for reaching other islands (see Islands.java)
+      Player.Craft vessel = new Player.Craft("raft", 1);
+      vessel.requirements.add(new Player.Craft("log", 10));
+      vessel.requirements.add(new Player.Craft("silky thread", 3));
+      crafts.add(vessel);
       // Survival tools (campfire)
       Player.Craft toolCraft = new Player.Craft("stone axe", 1);
       toolCraft.requirements.add(new Player.Craft("log", 3));
@@ -1632,6 +1637,18 @@ public class Player {
       var35.requirements.add(new Player.Craft("love ball", 1));
       var35.requirements.add(new Player.Craft("psi energy", 1));
       kilnCrafts.add(var35);
+      Player.Craft boatCraft = new Player.Craft("boat", 1);
+      boatCraft.requirements.add(new Player.Craft("raft", 1));
+      boatCraft.requirements.add(new Player.Craft("log", 12));
+      boatCraft.requirements.add(new Player.Craft("iron ore", 6));
+      boatCraft.requirements.add(new Player.Craft("copper ore", 4));
+      kilnCrafts.add(boatCraft);
+      boatCraft = new Player.Craft("sailboat", 1);
+      boatCraft.requirements.add(new Player.Craft("boat", 1));
+      boatCraft.requirements.add(new Player.Craft("silky thread", 6));
+      boatCraft.requirements.add(new Player.Craft("gold ore", 4));
+      boatCraft.requirements.add(new Player.Craft("crystal ore", 2));
+      kilnCrafts.add(boatCraft);
       // Cave ore recipes (kiln)
       Player.Craft oreCraft = new Player.Craft("metal coat", 1);
       oreCraft.requirements.add(new Player.Craft("iron ore", 1));
@@ -1985,6 +2002,16 @@ public class Player {
                      awayDir = "right";
                   } else {
                      awayDir = "left";
+                  }
+
+                  if (!Islands.canTravel(game, Player.this.dirFacing)) {
+                     game.insertAction(
+                        new DisplayText(
+                           game, Islands.blockedText(game, Player.this.dirFacing), null, null,
+                           new SetField(Player.this, "dirFacing", awayDir, Flying.this.new Moving())
+                        )
+                     );
+                     return;
                   }
 
                   int something = 100;

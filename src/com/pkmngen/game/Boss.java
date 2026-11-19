@@ -121,6 +121,12 @@ class Boss {
       return "Wild " + opp.nickname.toUpperCase(Locale.ROOT) + " appeared!";
    }
 
+   /** Per-map key for boss state. The home island keeps plain biome keys (older saves). */
+   static String mapKey(Game game, String biome) {
+      String id = game.map.currMapId;
+      return id == null || id.equals("0,0") ? biome : id + "|" + biome;
+   }
+
    static boolean canCatch(Pokemon pokemon) {
       return !pokemon.isBoss || pokemon.currentStats.get("hp") * 4 <= pokemon.maxStats.get("hp");
    }
@@ -148,7 +154,7 @@ class Boss {
       if (fixed) {
          int defeats = player.bossDefeats.getOrDefault(biome, 0) + 1;
          player.bossDefeats.put(biome, defeats);
-         player.bossRespawnDay.put(biome, player.daysPassed + RESPAWN_DAYS);
+         player.bossRespawnDay.put(mapKey(game, biome), player.daysPassed + RESPAWN_DAYS);
       }
       boss.isBoss = false;
       player.bossesBeaten++;
@@ -215,11 +221,11 @@ class Boss {
          if (tiles == null || tiles.isEmpty() || alive.containsKey(biome)) {
             continue;
          }
-         if (player.daysPassed < player.bossRespawnDay.getOrDefault(biome, 0)) {
+         if (player.daysPassed < player.bossRespawnDay.getOrDefault(mapKey(game, biome), 0)) {
             continue;
          }
          Tile spot = null;
-         String saved = player.bossSpots.get(biome);
+         String saved = player.bossSpots.get(mapKey(game, biome));
          if (saved != null) {
             String[] xy = saved.split(",");
             Tile t = game.map.overworldTiles.get(new Vector2(Float.valueOf(xy[0]), Float.valueOf(xy[1])));
@@ -229,7 +235,7 @@ class Boss {
          }
          if (spot == null) {
             spot = farthestFrom(tiles, player.spawnLoc != null ? player.spawnLoc : player.position, game);
-            player.bossSpots.put(biome, (int)spot.position.x + "," + (int)spot.position.y);
+            player.bossSpots.put(mapKey(game, biome), (int)spot.position.x + "," + (int)spot.position.y);
          }
          spawn(game, spot, biome, bossLevel(player), false);
       }
@@ -294,6 +300,10 @@ class Boss {
          ArrayList<String> options = new ArrayList<>(tile.routeBelongsTo.allowedPokemon());
          species = options.get(Game.rand.nextInt(options.size())).toLowerCase(Locale.ROOT);
       }
+      spawnSpecies(game, tile, biome, species, level, roaming);
+   }
+
+   static void spawnSpecies(Game game, Tile tile, String biome, String species, int level, boolean roaming) {
       Pokemon boss = new Pokemon(species, level, Pokemon.Generation.CRYSTAL);
       boss.makeBoss(biome, roaming);
       boss.position = tile.position.cpy();

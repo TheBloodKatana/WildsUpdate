@@ -54,7 +54,7 @@ class PlayerStanding extends Action {
    }
 
    boolean checkWildEncounter(Game game) {
-      Pokemon pokemon = this.checkWildEncounter(game, game.player.position);
+      Pokemon pokemon = Islands.maybeSpecial(game, this.checkWildEncounter(game, game.player.position));
       if (pokemon != null && Game.rand.nextInt(Boss.GRASS_BOSS_CHANCE) == 0) {
          Tile here = game.map.tiles.get(game.player.position);
          pokemon.level = Boss.bossLevel(game.player);
@@ -273,6 +273,19 @@ class PlayerStanding extends Action {
    }
 
    public void localStep(Game game) {
+      // Dev mode: F4 jumps near the right edge of the map (for testing island travel).
+      if (game.debugInputEnabled && game.playerCanMove && game.map.tiles == game.map.overworldTiles
+         && Gdx.input.isKeyJustPressed(com.badlogic.gdx.Input.Keys.F4)) {
+         com.badlogic.gdx.math.Rectangle box = game.map.boundingBox();
+         float ex = box.x + box.width - 48.0F;
+         ex -= ex % 16.0F;
+         float ey = game.player.position.y;
+         game.player.position.set(ex, ey);
+         game.player.dirFacing = "right";
+         game.cam.position.set(ex + 16.0F, ey, 0.0F);
+         game.map.refreshCache = true;
+      }
+
       // Dev mode: F5 places a shipwreck crate on the faced tile.
       if (game.debugInputEnabled && game.playerCanMove && Gdx.input.isKeyJustPressed(com.badlogic.gdx.Input.Keys.F5)) {
          Tile crateTile = game.map.tiles.get(game.player.facingPos());
@@ -287,7 +300,11 @@ class PlayerStanding extends Action {
          && Gdx.input.isKeyJustPressed(com.badlogic.gdx.Input.Keys.F6)) {
          Vector2 best = null;
          for (String k : game.player.caveEntrances.keySet()) {
-            String[] xy = k.split(",");
+            String pre = CaveGen.prefix(game);
+            if (k.endsWith("placed") || !k.startsWith(pre) || (pre.isEmpty() && k.contains("|"))) {
+               continue;
+            }
+            String[] xy = k.substring(pre.length()).split(",");
             Vector2 p = new Vector2(Float.valueOf(xy[0]), Float.valueOf(xy[1]) - 16.0F);
             if (best == null || p.dst2(game.player.position) < best.dst2(game.player.position)) {
                best = p;
@@ -313,6 +330,7 @@ class PlayerStanding extends Action {
       // Dev mode: F8 gives a Pokedex and the new balls.
       if (game.debugInputEnabled && game.playerCanMove && Gdx.input.isKeyJustPressed(com.badlogic.gdx.Input.Keys.F8)) {
          game.player.setItemAmount("pokédex", 1);
+         game.player.setItemAmount("sailboat", 1);
          for (String ball : new String[]{"repeat ball", "luxury ball", "hunter ball"}) {
             game.player.setItemAmount(ball, 20);
          }
@@ -1885,6 +1903,14 @@ class PlayerStanding extends Action {
                               )
                            );
                            game.player.hmPokemon = null;
+                        } else if (!game.map.boundingBox().contains(newPos) && !Islands.canTravel(game, game.player.dirFacing)) {
+                           game.playerCanMove = false;
+                           game.insertAction(
+                              new DisplayText(
+                                 game, Islands.blockedText(game, game.player.dirFacing), null, null,
+                                 new SetField(game, "playerCanMove", true, new PlayerStanding(game))
+                              )
+                           );
                         } else if (!game.map.boundingBox().contains(newPos)) {
                            int something = 100;
                            int randNum = Game.rand.nextInt(4) + 2;

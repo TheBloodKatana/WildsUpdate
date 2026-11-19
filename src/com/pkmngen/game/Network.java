@@ -272,11 +272,13 @@ public class Network {
    public static class MapSaveData {
       Network.MapTiles mapTiles = new Network.MapTiles();
       HashMap<Vector2, Network.PokemonData> overworldPokemon = new HashMap<>();
+      ArrayList<String> islandSpecials;
 
       public MapSaveData() {
       }
 
       public MapSaveData(Game game) {
+         this.islandSpecials = game.map.islandSpecials;
          this.mapTiles.timeOfDay = game.map.timeOfDay;
          this.mapTiles.dayTimer = CycleDayNight.dayTimer;
 

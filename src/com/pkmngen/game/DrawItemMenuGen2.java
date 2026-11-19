@@ -401,6 +401,9 @@ class DrawItemMenuGen2 extends Menu {
       itemDescriptions.put("Pink Apricorn".toLowerCase(Locale.ROOT), "A pink APRICORN.");
       itemDescriptions.put("Green Apricorn".toLowerCase(Locale.ROOT), "A green APRICORN.");
       itemDescriptions.put("Old Rod".toLowerCase(Locale.ROOT), "Use by water to fish for POKéMON.");
+      itemDescriptions.put("raft", "Crosses the sea to nearby islands.");
+      itemDescriptions.put("boat", "Reaches islands 2 seas away.");
+      itemDescriptions.put("sailboat", "Sails to any island at all.");
       itemDescriptions.put("copper ore", "Soft ore found in caves.");
       itemDescriptions.put("iron ore", "Sturdy ore for iron tools.");
       itemDescriptions.put("gold ore", "Rare ore from deep caves.");

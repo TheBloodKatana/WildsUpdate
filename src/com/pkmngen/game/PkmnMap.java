@@ -65,6 +65,8 @@ public class PkmnMap {
    public Route currRoute;
    // Shared storage for every PC tile on this map (lazily found/created).
    public Route pcRoute;
+   // Special species for islands away from home (see Islands.java); null until rolled.
+   public ArrayList<String> islandSpecials;
 
    /** Returns the shared PC storage, adopting the one saved on any PC tile. */
    public Route getPcRoute() {
@@ -1434,6 +1436,7 @@ public class PkmnMap {
 
       try {
          Network.MapSaveData mapData = Save.readData(this.id + ".sav/map" + this.currMapId, Network.MapSaveData.class);
+         this.islandSpecials = mapData.islandSpecials;
          this.overworldTiles.clear();
          this.bottomLeft = new Vector2();
          this.topRight = new Vector2();

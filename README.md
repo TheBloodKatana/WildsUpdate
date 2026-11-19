@@ -49,9 +49,17 @@ release (by SheerSt) for personal modding only.
 - Shipwreck loot: 1-2 crates wash up on seaside beach tiles each morning (max 6). Press A to
   open: logs plus 1-3 random finds (balls, ores, crafting materials, rare candy...).
 
+- Islands: the game already generates a new island when you surf/fly past the map edge
+  (saved as map x,y). Now: islands are gated by distance from home (|x|+|y|): RAFT (campfire)
+  for 1 sea out, BOAT (kiln) for 2, SAILBOAT (kiln, needs deep-cave ore) for any; heading home
+  is always allowed. Each island rolls 3 special species (rarer farther out) that replace 15%
+  of its wild encounters; ring 3+ islands have a 35% chance of a legendary boss (birds/beasts).
+  Caves, bosses and crates work per island.
+
 ## Dev mode keys (run with `dev`)
+- F4: jump next to the map's right edge (to test island travel)
 - F5: place a shipwreck crate on the faced tile
 - F6: jump to the nearest cave entrance
 - F7: spawn a boss two tiles ahead
-- F8: give a Pokedex + 20 of each new ball
+- F8: give a Pokedex, a SAILBOAT and 20 of each new ball
 - F9 / F10: place a PC / healing machine on the faced tile
