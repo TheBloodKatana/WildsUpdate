@@ -57,6 +57,8 @@ class PlayerStanding extends Action {
       Pokemon pokemon = this.checkWildEncounter(game, game.player.position);
       if (pokemon != null && Game.rand.nextInt(Boss.GRASS_BOSS_CHANCE) == 0) {
          Tile here = game.map.tiles.get(game.player.position);
+         pokemon.level = Boss.bossLevel(game.player);
+         pokemon.exp = pokemon.calcExpForLevel(pokemon.level);
          pokemon.makeBoss(here != null && here.routeBelongsTo != null ? here.routeBelongsTo.name : "", true);
       }
       if (pokemon != null) {
@@ -276,7 +278,7 @@ class PlayerStanding extends Action {
          Vector2 ahead = game.player.facingPos().cpy().add(game.player.facingPos().cpy().sub(game.player.position));
          Tile bossTile = game.map.tiles.get(ahead);
          if (bossTile != null && bossTile.routeBelongsTo != null && !bossTile.isSolid && !game.map.pokemon.containsKey(ahead)) {
-            Boss.spawn(game, bossTile, bossTile.routeBelongsTo.name, bossTile.routeBelongsTo.level + 10, false);
+            Boss.spawn(game, bossTile, bossTile.routeBelongsTo.name, Boss.bossLevel(game.player), false);
          }
       }
 

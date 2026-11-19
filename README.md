@@ -31,7 +31,10 @@ release (by SheerSt) for personal modding only.
 - Healing machine (indoor build): full heal + status cure.
 - Pokedex (campfire craft): seen/caught tracking, national order, detail pages.
 - Balls: Repeat, Luxury, Hunter (kiln). Dive Ball bonus bug fixed.
-- Bosses: one per biome (respawns 5 days after defeat, +5 levels each time), rare roaming
+- Catch level cap: wild Pokemon above it can't be caught (ball isn't used). Starts at LV20,
+  +10 per boss beaten. Bosses are always cap+5, exempt from the cap, and every living boss
+  levels up when you beat one.
+- Bosses: one per biome (respawns 5 days after defeat), rare roaming
   bosses (mornings + 1/256 tall-grass encounters). 2x HP, rage at half HP, no fleeing,
   catchable below 1/4 HP, pulsing aura on the map. Each defeat unlocks the next locked recipe:
   iron tools, ultra balls, healing machine, repeat/hunter/luxury balls.

@@ -93,6 +93,12 @@ public class Player {
    public HashMap<String, Integer> bossRespawnDay = new HashMap<>();
    public HashMap<String, String> bossSpots = new HashMap<>();
    public int daysPassed = 0;
+   public int bossesBeaten = 0;
+
+   /** Highest level of wild Pokemon you can catch. Raised by beating bosses. */
+   public int catchLevelCap() {
+      return Math.min(100, Boss.BASE_CAP + Boss.CAP_PER_BOSS * this.bossesBeaten);
+   }
 
    /** Folds regional forms / letters into their base species id. */
    public static String dexId(String specieName) {
@@ -733,6 +739,7 @@ public class Player {
             this.bossSpots.putAll(pd.bossSpots);
          }
          this.daysPassed = pd.daysPassed;
+         this.bossesBeaten = pd.bossesBeaten;
       }
 
       if (playerData instanceof com.pkmngen.game.Network.PlayerDataV07) {

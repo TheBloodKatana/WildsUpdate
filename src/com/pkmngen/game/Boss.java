@@ -18,7 +18,10 @@ import java.util.Map;
  * Boss Pokemon.
  *
  * - Fixed bosses: one per biome, at a spot chosen once per world. After it's beaten it
- *   comes back RESPAWN_DAYS later, 5 levels stronger each time.
+ *   comes back RESPAWN_DAYS later.
+ * - Catch level cap: wild Pokemon above it can't be caught. Starts at BASE_CAP, +CAP_PER_BOSS
+ *   per boss beaten. Bosses sit BOSS_ABOVE_CAP levels above it and are exempt from the cap;
+ *   beating any boss raises every other living boss to the new level.
  * - Roaming bosses: a rare chance each morning to appear somewhere on the island, plus a
  *   tiny chance that a tall-grass encounter is a boss.
  * - In battle: double HP, rages at half HP (+1 Atk/SpAtk/Speed), can't be fled from, and can
@@ -31,6 +34,32 @@ class Boss {
    static final int GRASS_BOSS_CHANCE = 256;   // 1 in N tall-grass encounters
    static final int ROAMING_CHANCE = 4;        // 1 in N mornings
    static final int MAX_ROAMING = 2;
+   static final int BASE_CAP = 20;             // starting catch level cap
+   static final int CAP_PER_BOSS = 10;         // cap raise per boss beaten
+   static final int BOSS_ABOVE_CAP = 5;        // bosses are this many levels above the cap
+
+   static int bossLevel(Player player) {
+      return Math.min(100, player.catchLevelCap() + BOSS_ABOVE_CAP);
+   }
+
+   /** Bosses are exempt (they use the 1/4 HP rule); everything else must be at or under the cap. */
+   static boolean underCatchCap(Pokemon pokemon, Player player) {
+      return pokemon.isBoss || pokemon.level <= player.catchLevelCap();
+   }
+
+   /** Set every living boss to the current boss level (cap + 5), keeping its HP ratio. */
+   static void levelUpBosses(Game game) {
+      int level = bossLevel(game.player);
+      for (Pokemon p : game.map.pokemon.values()) {
+         if (p.isBoss && p.level != level && p != game.battle.oppPokemon) {
+            float ratio = p.currentStats.get("hp") / (float)Math.max(1, p.maxStats.get("hp"));
+            p.level = level;
+            p.exp = p.calcExpForLevel(level);
+            p.calcMaxStats();
+            p.currentStats.put("hp", Math.max(1, Math.round(p.maxStats.get("hp") * ratio)));
+         }
+      }
+   }
 
    /** Unlock id -> display name. Order = order unlocks are handed out. */
    static final LinkedHashMap<String, String> UNLOCKS = new LinkedHashMap<>();
@@ -122,6 +151,9 @@ class Boss {
          player.bossRespawnDay.put(biome, player.daysPassed + RESPAWN_DAYS);
       }
       boss.isBoss = false;
+      player.bossesBeaten++;
+      levelUpBosses(game);
+      String capText = " Catch limit is now LV" + player.catchLevelCap() + "!";
 
       String unlock = BIOME_UNLOCK.get(biome);
       if (unlock == null || player.unlocks.contains(unlock)) {
@@ -135,12 +167,12 @@ class Boss {
       }
       if (unlock != null) {
          player.unlocks.add(unlock);
-         return "The BOSS was defeated! You can now craft " + UNLOCKS.get(unlock) + "!";
+         return "The BOSS was defeated! You can now craft " + UNLOCKS.get(unlock) + "!" + capText;
       }
       // Everything unlocked already: give materials instead.
       player.setItemAmount("rare candy", player.getItemAmount("rare candy") + 2);
       player.setItemAmount("life force", player.getItemAmount("life force") + 2);
-      return "The BOSS was defeated! It left behind 2 RARE CANDY and 2 LIFE FORCE!";
+      return "The BOSS was defeated! It left behind 2 RARE CANDY and 2 LIFE FORCE!" + capText;
    }
 
    // ------------------------------------------------------------------ world
@@ -153,6 +185,7 @@ class Boss {
          return;
       }
       Player player = game.player;
+      levelUpBosses(game);
       HashMap<String, Integer> alive = new HashMap<>();
       int roaming = 0;
       for (Pokemon p : game.map.pokemon.values()) {
@@ -198,8 +231,7 @@ class Boss {
             spot = farthestFrom(tiles, player.spawnLoc != null ? player.spawnLoc : player.position, game);
             player.bossSpots.put(biome, (int)spot.position.x + "," + (int)spot.position.y);
          }
-         int level = spot.routeBelongsTo.level + 10 + 5 * player.bossDefeats.getOrDefault(biome, 0);
-         spawn(game, spot, biome, Math.min(100, level), false);
+         spawn(game, spot, biome, bossLevel(player), false);
       }
 
       if (newDay && roaming < MAX_ROAMING && Game.rand.nextInt(ROAMING_CHANCE) == 0) {
@@ -210,7 +242,7 @@ class Boss {
             ArrayList<Tile> tiles = tilesByBiome.get(biome);
             Tile spot = tiles.get(Game.rand.nextInt(tiles.size()));
             if (spot.position.dst2(player.position) > 160 * 160) {
-               spawn(game, spot, biome, Math.min(100, spot.routeBelongsTo.level + 8), true);
+               spawn(game, spot, biome, bossLevel(player), true);
             }
          }
       }

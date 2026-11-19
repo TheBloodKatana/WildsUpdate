@@ -410,6 +410,7 @@ public class Network {
       HashMap<String, Integer> bossRespawnDay;
       HashMap<String, String> bossSpots;
       int daysPassed;
+      int bossesBeaten;
 
       public PlayerData() {
       }
@@ -424,6 +425,7 @@ public class Network {
          this.bossRespawnDay = new HashMap<>(player.bossRespawnDay);
          this.bossSpots = new HashMap<>(player.bossSpots);
          this.daysPassed = player.daysPassed;
+         this.bossesBeaten = player.bossesBeaten;
          this.dexSeen = new ArrayList<>(player.dexSeen);
          this.dexCaught = new ArrayList<>(player.dexCaught);
          if (player.hmPokemon != null) {

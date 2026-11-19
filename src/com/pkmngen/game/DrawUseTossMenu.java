@@ -435,6 +435,17 @@ class DrawUseTossMenu extends Menu {
       } else if (itemName.equals("silph scope") && !game.battle.oppPokemon.isGhost) {
          game.insertAction(this.prevMenu);
          game.insertAction(new PlayMusic("error1", new SetField(this.prevMenu, "disabled", false, null)));
+      } else if (itemName.contains("ball") && !Boss.underCatchCap(game.battle.oppPokemon, game.player)) {
+         game.insertAction(
+            new DisplayText(
+               game,
+               game.battle.oppPokemon.nickname.toUpperCase(Locale.ROOT) + " is too strong to catch! Your catch limit is LV"
+                  + game.player.catchLevelCap() + ". Beat BOSSES to raise it.",
+               null,
+               null,
+               new SetField(this.prevMenu, "disabled", false, this.prevMenu)
+            )
+         );
       } else if (!itemName.contains("ball") || !game.battle.oppPokemon.isGhost && !game.battle.oppPokemon.isEgg) {
          if (!itemName.equals("moomoo milk") && !itemName.equals("berry juice") && !itemName.contains(" berry") && !itemName.equals("revive")) {
             this.prevMenu.prevMenu.disabled = false;

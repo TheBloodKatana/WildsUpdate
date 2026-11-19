@@ -303,7 +303,7 @@ public class Battle {
 
    public static int gen2CalcIfCaught(Game game, Pokemon pokemon, String ballUsed) {
       ballUsed = ballUsed.toLowerCase(Locale.ROOT);
-      if (!Boss.canCatch(pokemon)) {
+      if (!Boss.canCatch(pokemon) || !Boss.underCatchCap(pokemon, game.player)) {
          return 0;
       }
       if (ballUsed.equals("master ball")) {
