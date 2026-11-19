@@ -155,6 +155,10 @@ public class Game extends ApplicationAdapter {
    public static List<String> evoStones = new ArrayList<>();
    private final GridPoint2 oldWindowSize = new GridPoint2();
    private boolean inFullScreen = false;
+   // DEBUG: shows the first exception thrown inside the action loop on screen,
+   // because a phone has no console. Safe to delete once the load bug is fixed.
+   private String debugError = null;
+   private int debugErrorTimer = 0;
 
    public Game() {
    }
@@ -949,6 +953,7 @@ public class Game extends ApplicationAdapter {
                action.step(this);
             } catch (Exception var5) {
                var5.printStackTrace();
+               this.reportError(action, var5);
             }
          }
       }
@@ -976,6 +981,7 @@ public class Game extends ApplicationAdapter {
             } catch (Exception var4) {
                var4.printStackTrace();
                System.out.println(actionx);
+               this.reportError(actionx, var4);
             }
          }
       }
@@ -988,9 +994,59 @@ public class Game extends ApplicationAdapter {
          }
       }
 
+      this.drawDebugError();
       this.uiBatch.end();
       if (!PkmnMap.PeriodicSave.isSaveOld()) {
          PkmnMap.PeriodicSave.increaseTimer();
+      }
+   }
+
+   private void reportError(Action action, Exception e) {
+      this.debugErrorTimer = 300;
+      if (this.debugError != null) {
+         return;
+      }
+
+      StackTraceElement[] trace = e.getStackTrace();
+      String where = "";
+      for (StackTraceElement el : trace) {
+         if (el.getClassName().startsWith("com.pkmngen")) {
+            where = " AT " + el.getFileName() + " " + el.getLineNumber();
+            break;
+         }
+      }
+
+      if (where.isEmpty() && trace.length > 0) {
+         where = " AT " + trace[0].getFileName() + " " + trace[0].getLineNumber();
+      }
+
+      this.debugError = e.getClass().getSimpleName() + " " + e.getMessage() + " IN " + action.getClass().getSimpleName() + where;
+   }
+
+   private void drawDebugError() {
+      if (this.debugError == null || this.textDict == null) {
+         return;
+      }
+
+      if (this.debugErrorTimer-- <= 0) {
+         this.debugError = null;
+         return;
+      }
+
+      String msg = this.debugError;
+      int line = 0;
+      for (int start = 0; start < msg.length() && line < 8; start += 20) {
+         String part = msg.substring(start, Math.min(msg.length(), start + 20));
+         for (int i = 0; i < part.length(); i++) {
+            SpriteProxy sprite = this.textDict.get(part.charAt(i));
+            if (sprite == null) {
+               sprite = this.textDict.get('?');
+            }
+
+            this.uiBatch.draw(sprite, (float)(i * 8), 136.0F - line * 8);
+         }
+
+         line++;
       }
    }
 
