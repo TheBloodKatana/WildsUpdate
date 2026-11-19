@@ -401,6 +401,9 @@ class DrawItemMenuGen2 extends Menu {
       itemDescriptions.put("Pink Apricorn".toLowerCase(Locale.ROOT), "A pink APRICORN.");
       itemDescriptions.put("Green Apricorn".toLowerCase(Locale.ROOT), "A green APRICORN.");
       itemDescriptions.put("Old Rod".toLowerCase(Locale.ROOT), "Use by water to fish for POKéMON.");
+      itemDescriptions.put("repeat ball", "Good on POKéMON caught before.");
+      itemDescriptions.put("luxury ball", "Makes POKéMON friendly fast.");
+      itemDescriptions.put("hunter ball", "Good on POKéMON chasing you.");
       itemDescriptions.put("pokédex", "Logs POKéMON seen and caught.");
       itemDescriptions.put("stone axe", "Chops small trees without a POKéMON.");
       itemDescriptions.put("stone pick", "Breaks rocks without a POKéMON.");
@@ -525,6 +528,9 @@ class DrawItemMenuGen2 extends Menu {
       ballItems.add("dream ball");
       ballItems.add("timer ball");
       ballItems.add("level ball");
+      ballItems.add("repeat ball");
+      ballItems.add("luxury ball");
+      ballItems.add("hunter ball");
       ballItems.add("master ball");
       ballItems.add("black apricorn");
       ballItems.add("blue apricorn");

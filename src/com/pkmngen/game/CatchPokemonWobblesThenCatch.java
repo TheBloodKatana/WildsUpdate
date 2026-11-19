@@ -308,6 +308,10 @@ class CatchPokemonWobblesThenCatch extends Action {
             newAction.append(new SetField(game.musicController, "resumeOverworldMusic", true, null));
          }
 
+         if (this.ballUsed.equals("luxury ball")) {
+            game.battle.oppPokemon.happiness = Math.max(game.battle.oppPokemon.happiness, 200);
+         }
+
          if (this.ballUsed.equals("heal ball")) {
             newAction.append(
                game.battle.oppPokemon.new SetStat("hp", game.battle.oppPokemon.maxStats.get("hp"), new SetField(game.battle.oppPokemon, "status", null, null))

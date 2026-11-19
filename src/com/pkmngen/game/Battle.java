@@ -328,12 +328,20 @@ public class Battle {
                rateModified = (int)(rateModified * Math.min(1.0F + game.battle.turnNumber * 0.30004883F, 4.0F));
             }
          } else if (ballUsed.equals("dive ball")) {
-            if (game.player.currFieldMove.equals("SURF") || game.player.currRod != null) {
+            if (game.player.currFieldMove.equals("SURF") || !game.player.currRod.equals("")) {
                rateModified = (int)(rateModified * 3.5F);
             }
          } else if (ballUsed.equals("nest ball")) {
             if (game.battle.oppPokemon.level <= 29) {
                rateModified = (int)(rateModified * ((41.0F - game.battle.oppPokemon.level) / 10.0F));
+            }
+         } else if (ballUsed.equals("repeat ball")) {
+            if (game.player.dexCaught.contains(Player.dexId(pokemon.specie.name))) {
+               rateModified *= 3;
+            }
+         } else if (ballUsed.equals("hunter ball")) {
+            if (pokemon.aggroPlayer) {
+               rateModified *= 3;
             }
          } else if (ballUsed.equals("dream ball")) {
             if (game.battle.oppPokemon.status != null && game.battle.oppPokemon.status.equals("sleep")) {

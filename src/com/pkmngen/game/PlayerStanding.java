@@ -267,9 +267,12 @@ class PlayerStanding extends Action {
    }
 
    public void localStep(Game game) {
-      // Dev mode: F8 gives a Pokedex.
+      // Dev mode: F8 gives a Pokedex and the new balls.
       if (game.debugInputEnabled && game.playerCanMove && Gdx.input.isKeyJustPressed(com.badlogic.gdx.Input.Keys.F8)) {
          game.player.setItemAmount("pokédex", 1);
+         for (String ball : new String[]{"repeat ball", "luxury ball", "hunter ball"}) {
+            game.player.setItemAmount(ball, 20);
+         }
       }
 
       // Dev mode: F9 places a PC, F10 a healing machine, on the tile the player faces.

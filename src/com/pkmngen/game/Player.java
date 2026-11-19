@@ -598,6 +598,9 @@ public class Player {
       if (Game.staticGame.debugInputEnabled) {
          this.setItemAmount("secret key", 1);
          this.setItemAmount("pokédex", 1);
+         this.setItemAmount("repeat ball", 20);
+         this.setItemAmount("luxury ball", 20);
+         this.setItemAmount("hunter ball", 20);
          for (String tool : new String[]{"stone axe", "stone pick", "stone shovel", "iron axe", "iron pick", "iron shovel"}) {
             this.setItemAmount(tool, 1);
          }
@@ -1587,6 +1590,18 @@ public class Player {
       var35.requirements.add(new Player.Craft("love ball", 1));
       var35.requirements.add(new Player.Craft("psi energy", 1));
       kilnCrafts.add(var35);
+      Player.Craft newBall = new Player.Craft("repeat ball", 1);
+      newBall.requirements.add(new Player.Craft("great ball", 1));
+      newBall.requirements.add(new Player.Craft("thin paper", 1));
+      kilnCrafts.add(newBall);
+      newBall = new Player.Craft("luxury ball", 1);
+      newBall.requirements.add(new Player.Craft("great ball", 1));
+      newBall.requirements.add(new Player.Craft("soft bedding", 1));
+      kilnCrafts.add(newBall);
+      newBall = new Player.Craft("hunter ball", 1);
+      newBall.requirements.add(new Player.Craft("great ball", 1));
+      newBall.requirements.add(new Player.Craft("dark energy", 1));
+      kilnCrafts.add(newBall);
       Player.Craft var36 = new Player.Craft("timer ball", 1);
       var36.requirements.add(new Player.Craft("heavy ball", 1));
       var36.requirements.add(new Player.Craft("hard stone", 1));
