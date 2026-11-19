@@ -273,6 +273,15 @@ class PlayerStanding extends Action {
    }
 
    public void localStep(Game game) {
+      // Dev mode: F5 places a shipwreck crate on the faced tile.
+      if (game.debugInputEnabled && game.playerCanMove && Gdx.input.isKeyJustPressed(com.badlogic.gdx.Input.Keys.F5)) {
+         Tile crateTile = game.map.tiles.get(game.player.facingPos());
+         if (crateTile != null && !crateTile.isSolid && crateTile.nameUpper.equals("")) {
+            crateTile.nameUpper = "shipwreck_crate1";
+            crateTile.init();
+         }
+      }
+
       // Dev mode: F6 teleports below the nearest cave entrance (overworld only).
       if (game.debugInputEnabled && game.playerCanMove && game.map.tiles == game.map.overworldTiles
          && Gdx.input.isKeyJustPressed(com.badlogic.gdx.Input.Keys.F6)) {

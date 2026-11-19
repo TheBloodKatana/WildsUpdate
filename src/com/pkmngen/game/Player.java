@@ -220,6 +220,12 @@ public class Player {
       return this.itemsDict.get(name);
    }
 
+   /** Adds items, treating missing entries as 0 (getItemAmount returns null for those). */
+   void addItem(String name, int amount) {
+      Integer have = this.itemsDict.get(name);
+      this.setItemAmount(name, (have == null ? 0 : have) + amount);
+   }
+
    void setItemAmount(String name, int amount) {
       this.itemsDict.put(name, amount);
    }

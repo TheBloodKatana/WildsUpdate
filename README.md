@@ -46,7 +46,11 @@ release (by SheerSt) for personal modding only.
   and crystal need an IRON PICK or a fully evolved Pokemon). Iron tools now cost iron ore;
   the kiln turns ore into metal coat, magnets, nuggets and evolution stones.
 
+- Shipwreck loot: 1-2 crates wash up on seaside beach tiles each morning (max 6). Press A to
+  open: logs plus 1-3 random finds (balls, ores, crafting materials, rare candy...).
+
 ## Dev mode keys (run with `dev`)
+- F5: place a shipwreck crate on the faced tile
 - F6: jump to the nearest cave entrance
 - F7: spawn a boss two tiles ahead
 - F8: give a Pokedex + 20 of each new ball

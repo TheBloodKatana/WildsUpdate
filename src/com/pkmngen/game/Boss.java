@@ -170,8 +170,8 @@ class Boss {
          return "The BOSS was defeated! You can now craft " + UNLOCKS.get(unlock) + "!" + capText;
       }
       // Everything unlocked already: give materials instead.
-      player.setItemAmount("rare candy", player.getItemAmount("rare candy") + 2);
-      player.setItemAmount("life force", player.getItemAmount("life force") + 2);
+      player.addItem("rare candy", 2);
+      player.addItem("life force", 2);
       return "The BOSS was defeated! It left behind 2 RARE CANDY and 2 LIFE FORCE!" + capText;
    }
 

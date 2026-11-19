@@ -3307,6 +3307,14 @@ public class Tile {
                return;
             }
          } else {
+            if (this.nameUpper.equals("shipwreck_crate1")) {
+               game.playerCanMove = false;
+               String text = Shipwreck.open(game, this);
+               this.updateMiniMap(game);
+               game.insertAction(new DisplayText(game, text, "fanfare1.ogg", null, new SetField(game, "playerCanMove", true, null)));
+               return;
+            }
+
             if (this.nameUpper.equals("pc1")) {
                // Every PC opens the same box.
                this.routeBelongsTo = game.map.getPcRoute();
