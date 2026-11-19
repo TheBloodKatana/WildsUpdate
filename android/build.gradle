@@ -93,7 +93,6 @@ tasks.register('gameLibsJar', Jar) {
         include 'org/zeroturnaround/**'
         include 'org/slf4j/**'
         include 'net/harawata/**'
-        include 'org/jetbrains/annotations/**'
         include 'com/google/gson/**'
         include 'com/pkmngen/leaks/LeakTracer.class'
         include 'com/pkmngen/leaks/LeakTracer$NoOp.class'
