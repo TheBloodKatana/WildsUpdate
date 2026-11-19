@@ -106,6 +106,10 @@ class Routines {
    static String spot(Game game, Npcs.Npc npc) {
       String[] s = SCHEDULE.get(npc.data.type);
       int i = periodIndex(game);
+      // Tournament day: entrants spend the day at the host plaza.
+      if (i < 3 && Tournaments.attending(game, npc) != null) {
+         return "tourney";
+      }
       // Gym leaders hold court in their town at midday.
       if (i == 1 && "gym".equals(npc.data.role)) {
          return "gym";
@@ -182,6 +186,16 @@ class Routines {
          case "home":
          case "inside":
             return home;
+         case "tourney": {
+            Cities.CityData c = Tournaments.attending(game, npc);
+            if (c != null) {
+               Vector2 p = nearestStandable(game, new Vector2(c.x + (Game.rand.nextInt(7) - 3) * 16, c.y + (Game.rand.nextInt(5) - 2) * 16), 4);
+               if (p != null) {
+                  return p;
+               }
+            }
+            return home;
+         }
          case "gym": {
             for (Cities.CityData c : Cities.list(game)) {
                if (c.name.equals(npc.data.gymCity)) {

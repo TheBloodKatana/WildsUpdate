@@ -2356,6 +2356,7 @@ public class Battle {
    public static Action getIntroAction(Game game, boolean fishing) {
       game.player.markSeen(game.battle.oppPokemon);
       game.battle.resetState();
+      Calendar.applyToBattle(game);
       DrawBattle.hideOwnPokemon = false;
       DrawBattle.hideOppPokemon = false;
       if (game.player.pokemon.isEmpty()) {

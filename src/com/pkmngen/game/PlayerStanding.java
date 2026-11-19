@@ -309,6 +309,41 @@ class PlayerStanding extends Action {
          }
       }
 
+      // Dev mode: Y cycles today's weather, U starts a legendary event right here, K holds a tournament today in the nearest town.
+      if (game.debugInputEnabled && game.playerCanMove && game.map.tiles == game.map.overworldTiles) {
+         if (Gdx.input.isKeyJustPressed(com.badlogic.gdx.Input.Keys.Y)) {
+            String[] ws = {Calendar.CLEAR, Calendar.RAIN, Calendar.SNOW, Calendar.FOG, Calendar.HEAT};
+            int wi = java.util.Arrays.asList(ws).indexOf(game.player.weatherToday);
+            game.player.weatherToday = ws[(wi + 1) % ws.length];
+            Alerts.push(game, "Weather (dev) - " + Calendar.weatherName(game.player.weatherToday) + ". Here - " + Calendar.playerWeather(game) + ".");
+         }
+         if (Gdx.input.isKeyJustPressed(com.badlogic.gdx.Input.Keys.U)) {
+            game.player.legendEvents.clear();
+            Calendar.planEvent(game, new java.util.Random());
+            if (!game.player.legendEvents.isEmpty()) {
+               Calendar.Event ev = game.player.legendEvents.get(0);
+               ev.x = game.player.position.x + 64;
+               ev.y = game.player.position.y;
+               ev.startDay = game.player.daysPassed;
+               ev.endDay = ev.startDay + Calendar.EVENT_DAYS - 1;
+               Calendar.ensureLegend(game, ev);
+               Alerts.push(game, Characters.upper(ev.legend) + " has arrived! " + Characters.cap(ev.title) + " hits " + Alerts.where(game, game.player.position) + ".");
+            }
+         }
+         if (Gdx.input.isKeyJustPressed(com.badlogic.gdx.Input.Keys.K)) {
+            Cities.CityData near = Cities.nearest(game, game.player.position);
+            if (near != null) {
+               Tournaments.state(game).scheduled.removeIf(sc -> sc.town.equals(near.name));
+               Tournaments.schedule(game, near.name, game.player.daysPassed, false);
+               Tournaments.todayEntrants = null;
+               Tournaments.askedDay = game.player.daysPassed;   // dev: you're signed up, starts right away
+               Tournaments.signedUp = true;
+               Tournaments.devStartNow = true;
+               Tournaments.announce(game);
+            }
+         }
+      }
+
       // Dev mode: F12 puts a wandering trainer 4 tiles ahead, looking at you. F1 founds a town here.
       if (game.debugInputEnabled && game.playerCanMove && game.map.tiles == game.map.overworldTiles
          && Gdx.input.isKeyJustPressed(com.badlogic.gdx.Input.Keys.F12)) {
@@ -334,7 +369,8 @@ class PlayerStanding extends Action {
          && Gdx.input.isKeyJustPressed(com.badlogic.gdx.Input.Keys.F1)) {
          Cities.CityData town = Cities.found(game, game.player.position.cpy(), Cities.suggestName(game, 0));
          Trainers.spawnFolk(game);
-         Npcs.pendingText = Cities.title(town) + " was founded!";
+         Alerts.push(game, Cities.title(town) + " was founded!");
+         Tournaments.fillVacancies(game);
          Npcs.ensureDriver(game);
       }
 

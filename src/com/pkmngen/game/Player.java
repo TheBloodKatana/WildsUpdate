@@ -90,6 +90,12 @@ public class Player {
    // Boss progression (see Boss.java)
    public java.util.HashSet<String> unlocks = new java.util.HashSet<>();
    public ArrayList<String> badges = new ArrayList<>();
+   public String weatherToday;
+   public String weatherTomorrow;
+   public ArrayList<Calendar.Event> legendEvents = new ArrayList<>();
+   public java.util.HashSet<String> legendsDone = new java.util.HashSet<>();
+   public int generation = 1;   // 1 = the survivor; 2+ after passing the torch
+   public HashMap<String, Integer> townRep = new HashMap<>();
    public HashMap<String, Integer> bossDefeats = new HashMap<>();
    public HashMap<String, Integer> bossRespawnDay = new HashMap<>();
    public HashMap<String, String> bossSpots = new HashMap<>();
@@ -739,6 +745,18 @@ public class Player {
          }
          if (pd.badges != null) {
             this.badges = new ArrayList<>(pd.badges);
+         }
+         this.weatherToday = pd.weatherToday;
+         this.weatherTomorrow = pd.weatherTomorrow;
+         if (pd.legendEvents != null) {
+            this.legendEvents = new ArrayList<>(pd.legendEvents);
+         }
+         this.generation = Math.max(1, pd.generation);
+         if (pd.townRep != null) {
+            this.townRep = new HashMap<>(pd.townRep);
+         }
+         if (pd.legendsDone != null) {
+            this.legendsDone = new java.util.HashSet<>(pd.legendsDone);
          }
          if (pd.unlocks != null) {
             this.unlocks.addAll(pd.unlocks);

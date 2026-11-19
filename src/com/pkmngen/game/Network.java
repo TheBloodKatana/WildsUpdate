@@ -275,6 +275,7 @@ public class Network {
       ArrayList<String> islandSpecials;
       ArrayList<Npcs.NpcData> npcs;
       ArrayList<Cities.CityData> cities;
+      Tournaments.State tourney;
 
       public MapSaveData() {
       }
@@ -283,6 +284,7 @@ public class Network {
          this.islandSpecials = game.map.islandSpecials;
          this.npcs = Npcs.save(game);
          this.cities = game.map.cities;
+         this.tourney = game.map.tourney;
          this.mapTiles.timeOfDay = game.map.timeOfDay;
          this.mapTiles.dayTimer = CycleDayNight.dayTimer;
 
@@ -413,6 +415,12 @@ public class Network {
       ArrayList<String> dexCaught;
       ArrayList<String> unlocks;
       ArrayList<String> badges;
+      String weatherToday;
+      String weatherTomorrow;
+      ArrayList<Calendar.Event> legendEvents;
+      ArrayList<String> legendsDone;
+      int generation;
+      HashMap<String, Integer> townRep;
       HashMap<String, Integer> bossDefeats;
       HashMap<String, Integer> bossRespawnDay;
       HashMap<String, String> bossSpots;
@@ -432,6 +440,12 @@ public class Network {
          }
          this.unlocks = new ArrayList<>(player.unlocks);
          this.badges = new ArrayList<>(player.badges);
+         this.weatherToday = player.weatherToday;
+         this.weatherTomorrow = player.weatherTomorrow;
+         this.legendEvents = new ArrayList<>(player.legendEvents);
+         this.legendsDone = new ArrayList<>(player.legendsDone);
+         this.generation = player.generation;
+         this.townRep = new HashMap<>(player.townRep);
          this.bossDefeats = new HashMap<>(player.bossDefeats);
          this.bossRespawnDay = new HashMap<>(player.bossRespawnDay);
          this.bossSpots = new HashMap<>(player.bossSpots);

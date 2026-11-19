@@ -180,7 +180,8 @@ class Npcs {
       String pendingLine;
       String role;      // "gym" once appointed by the League Director
       String gymCity;   // gym leaders: their town; townsfolk: the town they live in
-      int wanderDay = -1;  // wandering trainers: the day they're out (they leave after)
+      int wanderDay = -1;
+      int gymSlot = 0;     // which of the town's gyms (0, 1, 2)  // wandering trainers: the day they're out (they leave after)
 
       NpcData() {
       }
@@ -305,7 +306,7 @@ class Npcs {
       game.map.npcs.add(npc);
       Characters.daily(game, npc, false);
       System.out.println("NPC arrived: " + npc.fullName() + " at " + outside.position);
-      pendingText = npc.fullName() + " arrived on the island and moved into one of your houses!";
+      Alerts.push(game, npc.fullName() + " moved into a house in " + Alerts.where(game, outside.position) + "!");
    }
 
    /** Returns {bed tile, walkable tile outside the house door, Tile(layerIndex,0) as a carrier} or null. */
@@ -580,6 +581,7 @@ class Npcs {
             game.insertAction(new DisplayText(game, Characters.T(pendingText), "fanfare1.ogg", null, new SetField(game, "playerCanMove", true, null)));
             pendingText = null;
          }
+         Tournaments.step(game);
          if (game.map.tiles != game.map.overworldTiles) {
             return;
          }

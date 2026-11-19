@@ -19,6 +19,7 @@ class TrainerBattle {
    int index = 0;
    boolean firstRound = true;
    boolean gym = false;
+   boolean tourney = false;
 
    TrainerBattle(Npcs.Npc npc) {
       this(npc, false, 0);
@@ -110,6 +111,9 @@ class TrainerBattle {
       if (this.gym) {
          done = League.awardBadge(game, this.npc, done);
       }
+      if (this.tourney) {
+         Tournaments.playerWon(game);
+      }
       done = Trainers.prize(game, this.npc, done);
       return new DisplayText(game, Characters.T("You defeated " + this.name + "!"), "fanfare1.ogg", null,
          new DisplayText(game, Characters.T(line), null, null, done));
@@ -123,6 +127,9 @@ class TrainerBattle {
       Characters.Def def = Characters.DEFS.get(d.type);
       if (def != null && def.loseLine != null) {
          d.pendingLine = def.loseLine;
+      }
+      if (this.tourney) {
+         Tournaments.playerLost(game);
       }
       game.battle.trainer = null;
    }

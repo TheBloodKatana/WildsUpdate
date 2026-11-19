@@ -3,6 +3,11 @@
 How a save goes from a castaway on a beach to a League with a Champion, then to the next
 generation. Status: **design** unless marked **[built]**. Companion to `CHARACTERS.md`.
 
+**[built]** so far: calendar and seasons, weather, legendary events, alert banners, minimap and map
+pins, home towns, inaugural and seasonal local tournaments, succession lists, vacancy filling,
+simulated battles, signing up and fighting your own matches. Not yet: League Hall, regional
+tournament, Elite Four, Champion, passing the torch.
+
 ---
 
 ## 1. The big picture
@@ -17,15 +22,33 @@ Phase 1 ends when you win the regional tournament and choose to **pass the torch
 
 ---
 
-## 2. The calendar
+## 2. The calendar **[built]**
 
 - **1 year = 4 seasons x 28 days = 112 days.** Spring (days 1-28), Summer (29-56), Fall (57-84), Winter (85-112).
 - **Local tournaments:** one per season, in one gym town (see section 4 for which).
 - **Regional tournament:** once a year, on the **last day of winter** (day 112).
 - A local tournament never falls in the last 7 days of winter, so the regional always has the stage to itself.
+- **Seasons [built]** tint the world (spring normal, summer warm, fall orange, winter cold blue) and change
+  the weather odds: spring showers, summer heat waves, foggy wet falls, snowy winters. Alerts announce
+  each new season and warn 3 days before the next.
+
+### Weather [built]
+- Rolled a day ahead, so there's an evening forecast alert and a morning one.
+- Each biome takes it its own way: rain is snow in the tundra and never reaches the desert, fog stays
+  off the volcano, heat waves only hit hot places, and the tundra snows all winter.
+- In battle: rain = RAIN DANCE all battle, heat = SUNNY DAY. No ordinary storms.
+
+### Legendary events [built]
+- Rare (about 3% a day once day 10 has passed, one at a time). Two days of "strange weather is gathering
+  over X..." alerts, then the legendary arrives as a boss (catch cap + 10) and takes over the area around
+  it for 3 days: Kyogre downpour, Groudon drought, Zapdos thunderstorm, Articuno blizzard, Moltres heat
+  wave, Suicune pure rain, Raikou storm, Entei heat, Lugia sea storm. Some only come in certain seasons.
+- The area gets that weather on the overworld and in battle. Beat it (it flees), catch it, or wait it out.
+- **A caught legendary never causes events again, until the torch is passed: passing the torch resets
+  every legendary encounter**, so the kid can meet them all.
 
 ### Announcements
-Every tournament gets two alert banners (and a bulletin board post in every town):
+Every tournament gets two alert banners **[built]** (and, once it exists, a bulletin board post in every town):
 
 | When | Banner |
 |---|---|
@@ -38,7 +61,7 @@ Results get a third banner that evening, e.g. `WOOD keeps his gym in CEDAR TOWN!
 
 ---
 
-## 3. Every NPC has a home town
+## 3. Every NPC has a home town **[built]**
 
 The rest of this doc depends on one rule: **each NPC belongs to exactly one town**, the founded town
 nearest to their bed (townsfolk already store theirs). An NPC whose home is not near any town belongs
@@ -48,7 +71,11 @@ A villager's home town only changes if they move house, or if a new town is foun
 
 ---
 
-## 4. Which town hosts the local tournament
+## 4. Which town hosts the local tournament **[built]**
+
+**New gyms first:** the moment a town gets a gym slot nobody can fill (a new town, or a town that
+grew), an **inaugural tournament** is scheduled 3 days out to decide who leads it. It counts as that
+town's turn in the current cycle. If only one person is eligible, they take the gym unopposed.
 
 Each season, one gym town hosts a local tournament on a random day of that season. Towns take turns in
 a **cycle**, in random order:
@@ -68,14 +95,15 @@ pick anyone except Town 4.
 
 ---
 
-## 5. Local tournaments
+## 5. Local tournaments **[built]**
 
 ### Who enters (8 entrants)
 In priority order until there are 8:
 1. The host town's current **Gym Leaders** (a village has 1, a town 2, a city 3).
-2. **You**, if you talk to the host at the plaza before noon on the day.
-3. The previous local tournament's **runner-up list** for this town (see succession).
-4. **Core characters** whose home town is this one and who hold no League role.
+2. **Core characters** whose home town is this one and who hold no other League role (they get priority).
+3. **You**: walk into the host town that morning and you're asked to sign up. Be in town at noon.
+   If the bracket is full, the weakest entrant makes room for you.
+4. The previous local tournament's **runner-up list** for this town (see succession).
 5. **Settled trainers** from this town, strongest first.
 6. **Townsfolk** from this town, strongest first. (Townsfolk get small teams for this.)
 
@@ -125,7 +153,7 @@ keeps whoever holds the gym.
 
 ---
 
-## 7. Vacancies: who fills a spot when someone moves
+## 7. Vacancies: who fills a spot when someone moves **[built for gyms]**
 
 ### Core rules
 - **One League role at a time.** Taking a higher role drops the lower one. The order is Champion, then Elite Four, then Gym Leader.
@@ -156,7 +184,7 @@ keeps whoever holds the gym.
 
 ---
 
-## 8. Simulated battles
+## 8. Simulated battles **[built]**
 
 For matches you're not in, each side gets a score:
 
@@ -187,6 +215,7 @@ When you say YES:
    - Kid catch level cap: **LV15, +10 per badge**, LV100 once Champion.
    - The kid **can** hold a gym, an Elite Four spot or the Champion title by winning tournaments.
 3. **Everything keeps running:** seasons, local tournaments, the regional, all simulated unless the kid takes part.
+   **Every legendary encounter resets**, including ones your first character caught.
 4. **The world ages:** every core character's team has grown, townsfolk get new lines about "back when
    your dad washed up here", and your partner becomes the kid's other parent.
 5. **Rival:** if Emma, Wood or another core character has a child too (a partner of their own,
@@ -197,18 +226,18 @@ When you say YES:
 
 ## 10. What changes in the current build
 
-- Badges **stop raising your character's catch cap in phase 1**. Only bosses raise it there; badges become phase 2.
-- **Phase 1 gym battles stay** [built], but give friendship and a win record instead of badges.
-- **The Director's job changes:** he appoints the *first* leader of each gym [built], then hosts tournaments
-  that decide every leader after that.
-- Townsfolk need small teams so they can enter.
-- Not built yet: alert banners, seasons, the bulletin board, the League Hall, tournaments, and the phase 2 switch.
+- **[built]** Badges no longer raise your character's cap in phase 1; bosses do. Badges belong to the
+  gym (e.g. CEDAR BADGE), not the leader, and are for phase 2.
+- **[built]** Phase 1 gym battles: once a day per leader, for glory and their respect.
+- **[built]** The Director no longer appoints anyone: tournaments decide every leader, and he tells you what's coming up.
+- **[built]** Townsfolk get small teams so they can enter.
+- Not built yet: the bulletin board, the League Hall, the regional, Elite Four, Champion, and the phase 2 switch.
 
 ## 11. Build order
 
-1. Alert banners (needed for announcements).
-2. Seasons and the calendar.
-3. Home towns, succession lists, and the vacancy rules (section 7).
-4. Simulated battles and local tournaments (with you as an entrant).
+1. ~~Alert banners~~ [built]
+2. ~~Seasons, calendar, weather, legendary events~~ [built]
+3. ~~Home towns, succession lists, vacancy rules~~ [built]
+4. ~~Simulated battles and local tournaments~~ [built]
 5. League Hall, regional tournament, Elite Four, and Champion.
 6. Passing the torch: Dad as a core character, the kid, Professor Willow.

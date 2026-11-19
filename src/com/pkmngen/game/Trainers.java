@@ -371,6 +371,9 @@ class Trainers {
          npc.dir = new String[]{"up", "down", "left", "right"}[r.nextInt(4)];
          npcs.add(npc);
          have++;
+         if (Alerts.ready) {
+            Alerts.push(game, "A " + c.title + " is wandering " + Alerts.where(game, p) + " today.");
+         }
       }
       spawnFolk(game);
    }
@@ -501,6 +504,10 @@ class Trainers {
    /** Townsfolk: gossip, and once a week some junk. */
    static Action folkTalk(Game game, Npcs.Npc npc, Action end) {
       String who = npc.fullName() + " - ";
+      Action gym = League.gymPrompt(game, npc, end);
+      if (gym != null) {
+         return gym;
+      }
       Action next = end;
       if (npc.data.lastGiftDay < 0 || game.player.daysPassed - npc.data.lastGiftDay >= 7) {
          npc.data.lastGiftDay = game.player.daysPassed;
@@ -596,6 +603,10 @@ class Trainers {
    /** Settler rematch / breeder day-care. Returns null if nothing special. */
    static Action service(Game game, Npcs.Npc npc, Action end) {
       String t = npc.data.type;
+      Action gym = League.gymPrompt(game, npc, end);
+      if (gym != null) {
+         return gym;
+      }
       if (isFolk(t)) {
          return folkTalk(game, npc, end);
       }

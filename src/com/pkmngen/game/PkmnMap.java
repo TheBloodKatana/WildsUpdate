@@ -68,6 +68,7 @@ public class PkmnMap {
    // Special species for islands away from home (see Islands.java); null until rolled.
    public ArrayList<String> islandSpecials;
    public ArrayList<Cities.CityData> cities = new ArrayList<>();
+   public Tournaments.State tourney;
    // Villagers living on this island (see Npcs.java).
    public ArrayList<Npcs.Npc> npcs;
 
@@ -1442,6 +1443,12 @@ public class PkmnMap {
          this.islandSpecials = mapData.islandSpecials;
          this.npcs = Npcs.load(mapData.npcs);
          this.cities = mapData.cities != null ? mapData.cities : new ArrayList<>();
+         for (Cities.CityData c : this.cities) {
+            if (c.succession == null) {
+               c.succession = new ArrayList<>();
+            }
+         }
+         this.tourney = mapData.tourney;
          this.overworldTiles.clear();
          this.bottomLeft = new Vector2();
          this.topRight = new Vector2();

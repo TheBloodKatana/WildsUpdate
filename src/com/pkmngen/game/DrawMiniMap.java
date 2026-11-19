@@ -43,6 +43,7 @@ class DrawMiniMap extends Menu {
    boolean snapTo = false;
    Vector2 cursorPos = new Vector2();
    Pokemon teleportPokemon = null;
+   boolean fromKey = false;   // opened with M from the overworld (no menu to go back to)
 
    public DrawMiniMap(Game game, Menu prevMenu) {
       this(game, null, prevMenu);
@@ -134,6 +135,53 @@ class DrawMiniMap extends Menu {
          game.mapBatch.draw(this.zSprite, this.currX + this.currOffset.x + this.spawnLoc.x + 4.0F, this.currY + this.currOffset.y + this.spawnLoc.y + 4.0F);
          game.mapBatch
             .draw(this.spritePart, this.currX + this.currOffset.x + this.playerPos.x - 8.0F, this.currY + this.currOffset.y + this.playerPos.y + 5.0F - 8.0F);
+      }
+
+      // Pins: towns (with names), the legendary event, cave entrances you've uncovered.
+      {
+         float ox = this.currX + this.currOffset.x;
+         float oy = this.currY + this.currOffset.y;
+         com.badlogic.gdx.graphics.Texture px = TextureCache.get(Gdx.files.internal("npc/px_white.png"));
+         Color saved = new Color(game.mapBatch.getColor());
+         String prefix = CaveGen.prefix(game);
+         game.mapBatch.setColor(0.55F, 0.35F, 0.15F, 1);
+         for (String k : game.player.caveEntrances.keySet()) {
+            if (k.endsWith("placed") || !k.startsWith(prefix) || (prefix.isEmpty() && k.contains("|"))) {
+               continue;
+            }
+            try {
+               String[] xy = k.substring(prefix.length()).split(",");
+               float wx = Float.valueOf(xy[0]);
+               float wy = Float.valueOf(xy[1]);
+               if (MiniMapHud.explored(game, wx, wy)) {
+                  game.mapBatch.draw(px, ox + (int)(wx - game.map.bottomLeft.x) / 8 - 1, oy + (int)(wy - game.map.bottomLeft.y) / 8 - 1, 3, 3);
+               }
+            } catch (Exception ignored) {
+            }
+         }
+         Calendar.Event ev = Calendar.activeEvent(game);
+         if (ev != null) {
+            game.mapBatch.setColor(0.6F, 0.2F, 0.9F, this.arrowTimer < 40 ? 1 : 0.4F);
+            game.mapBatch.draw(px, ox + (int)(ev.x - game.map.bottomLeft.x) / 8 - 2, oy + (int)(ev.y - game.map.bottomLeft.y) / 8 - 2, 5, 5);
+         }
+         for (Cities.CityData c : Cities.list(game)) {
+            float cx = ox + (int)(c.x - game.map.bottomLeft.x) / 8;
+            float cy = oy + (int)(c.y - game.map.bottomLeft.y) / 8;
+            game.mapBatch.setColor(0.1F, 0.1F, 0.1F, 1);
+            game.mapBatch.draw(px, cx - 3, cy - 3, 6, 6);
+            game.mapBatch.setColor(0.9F, 0.15F, 0.15F, 1);
+            game.mapBatch.draw(px, cx - 2, cy - 2, 4, 4);
+            game.mapBatch.setColor(saved);
+            String name = Cities.title(c);
+            float tx = cx - name.length() * 4;
+            for (int i = 0; i < name.length(); i++) {
+               Object glyph = game.textDict.get(name.charAt(i));
+               if (glyph != null) {
+                  game.mapBatch.draw((com.pkmngen.game.util.SpriteProxy)glyph, tx + i * 8, cy + 4);
+               }
+            }
+         }
+         game.mapBatch.setColor(saved);
       }
 
       if (this.nearestWarpTile != null) {
@@ -257,7 +305,11 @@ class DrawMiniMap extends Menu {
 
             game.actionStack.remove(this.drawText);
             game.actionStack.remove(this);
-            game.insertAction(new DrawPokemonMenu.Intro(this.prevMenu));
+            if (this.fromKey) {
+               game.playerCanMove = true;
+            } else {
+               game.insertAction(new DrawPokemonMenu.Intro(this.prevMenu));
+            }
             game.insertAction(new PlayMusic("click1", null));
          } else {
             if (InputProcessor.aJustPressed && this.teleportPokemon != null && this.nearestWarpTile != null) {

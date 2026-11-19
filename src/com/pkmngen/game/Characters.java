@@ -192,6 +192,15 @@ class Characters {
       return s.replace("n't", "nì").replace("'s", "\u0001").replace("'", "\u0092").replace("\u0001", "'");
    }
 
+   static String upper(String s) {
+      return s == null ? "" : s.toUpperCase(Locale.ROOT);
+   }
+
+   /** First letter upper case. */
+   static String cap(String s) {
+      return s == null || s.isEmpty() ? "" : Character.toUpperCase(s.charAt(0)) + s.substring(1);
+   }
+
    static boolean isCore(String id) {
       return DEFS.containsKey(id);
    }

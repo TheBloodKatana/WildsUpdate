@@ -316,6 +316,10 @@ class Boss {
       game.insertAction(boss.standingAction);
       game.map.pokemon.put(boss.position.cpy(), boss);
       System.out.println("Spawned boss " + species + " Lv" + level + " in " + biome + " at " + tile.position);
+      if (Alerts.ready) {
+         Alerts.push(game, (roaming ? "A roaming " : "A powerful ") + species.toUpperCase(Locale.ROOT) + " LV" + level + " appeared in "
+            + Alerts.where(game, tile.position) + "!");
+      }
    }
 
    // ------------------------------------------------------------------ aura

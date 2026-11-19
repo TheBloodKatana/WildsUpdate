@@ -88,6 +88,10 @@ class CycleDayNight extends Action {
             Boss.auraAction = new Boss.DrawAuras();
             game.insertAction(Boss.auraAction);
          }
+         Alerts.ready = true;
+         Calendar.onLoad(game);
+         MiniMapHud.ensure(game);
+         Tournaments.onLoad(game);
       }
 
       dayTimer--;
@@ -123,6 +127,8 @@ class CycleDayNight extends Action {
             Boss.update(game, true);
             Shipwreck.update(game, true);
             Npcs.update(game, true);
+            Calendar.onNewDay(game);
+            Tournaments.onNewDay(game);
             this.signCounter = 300;
             this.bgSprite.setPosition(0.0F, 24.0F);
             game.musicController.startTimeOfDay = "day";

@@ -97,6 +97,17 @@ release (by SheerSt) for personal modding only.
 - Townsfolk: 12 filler residents (Gramps, Kid, Gossip, Tourist, DJ...) fill founded towns, no
   bed needed (about one per two houses). They gossip about the others and give you junk weekly.
 
+- Alerts: banners at the top for arrivals, wandering trainers, bosses, seasons, weather, events, tournaments.
+- Calendar (Calendar.java): 4 seasons of 28 days with seasonal tints and weather (rain, snow, fog, heat;
+  per biome; carries into battles). Rare legendary events take over an area with their weather.
+- Minimap (MiniMapHud.java): top-right corner, N toggles it, M opens the full map. Pins: towns (red,
+  named on the full map), caves you've found, a legendary event (purple), your bed (blue).
+- Tournaments (Tournaments.java): new gyms get an inaugural tournament; each season one gym town hosts.
+  Sign up when you're in town that morning. See docs/PROGRESSION.md.
+
+## Keys
+- N: show/hide the minimap. M: full map.
+
 ## Dev mode keys (run with `dev`)
 - F1: found a town where you stand (plus its townsfolk)
 - F2: spawn the next villager on the faced tile (no house needed; stays put)
@@ -108,3 +119,6 @@ release (by SheerSt) for personal modding only.
 - F8: give a Pokedex, a SAILBOAT and 20 of each new ball
 - F9 / F10: place a PC / healing machine on the faced tile
 - F12: put a wandering trainer 4 tiles ahead, facing you
+- Y: cycle today's weather
+- U: start a legendary event right next to you
+- K: hold a tournament now in the nearest town, with you signed up

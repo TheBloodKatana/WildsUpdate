@@ -415,7 +415,7 @@ public class Game extends ApplicationAdapter {
          } else if (Gdx.input.isKeyJustPressed(123) && this.map != null) {
             this.map.tiles = this.map.overworldTiles;
             this.map.refreshCache = true;
-         } else if (Gdx.input.isKeyJustPressed(41) && this.map != null) {
+         } else if (Gdx.input.isKeyJustPressed(41) && this.map != null && this.dangerousDebugInputEnabled) {
             String nextMusicName = this.map.currRoute.getNextMusic(true);
             Action nextMusic = new FadeMusic(
                this.currMusic,

@@ -31,12 +31,16 @@ class League {
       return "gym".equals(npc.data.role);
    }
 
+   /** Badges belong to the gym (town + slot), not to whoever leads it. */
    static String badgeOf(Npcs.Npc npc) {
-      return BADGE.get(npc.data.type);
+      if (npc.data.gymCity == null) {
+         return null;
+      }
+      return npc.data.gymCity + (npc.data.gymSlot > 0 ? " " + (npc.data.gymSlot + 1) : "") + " BADGE";
    }
 
    static boolean hasBadge(Game game, Npcs.Npc npc) {
-      return game.player.badges.contains(badgeOf(npc));
+      return game.player.generation < 2 || game.player.badges.contains(badgeOf(npc));
    }
 
    static int leadersIn(Game game, Cities.CityData c) {
@@ -70,7 +74,7 @@ class League {
    }
 
    static boolean hasNews(Game game, Npcs.Npc director) {
-      return director.data.questStage == 0 || cityWithRoom(game) != null && !candidates(game).isEmpty();
+      return director.data.questStage == 0;
    }
 
    static Action directorTalk(Game game, Npcs.Npc npc, Action end) {
@@ -82,25 +86,22 @@ class League {
             say(game, who + "Each BADGE lets you catch stronger POKéMON. Collect eight and we'll talk about an ELITE FOUR.",
             directorTalk(game, npc, end))));
       }
-      Cities.CityData room = cityWithRoom(game);
-      ArrayList<Npcs.Npc> cands = candidates(game);
-      if (room != null && !cands.isEmpty()) {
-         return say(game, who + Cities.title(room) + " has room for a GYM. Who should lead it?",
-            appointPrompt(game, room, cands, 0, end));
+      String upcoming = Tournaments.status(game);
+      int gymTowns = 0;
+      for (Cities.CityData c : Cities.list(game)) {
+         if (!Tournaments.leadersOf(game, c).isEmpty()) {
+            gymTowns++;
+         }
       }
-      int badges = game.player.badges.size();
       String status;
-      if (badges >= BADGES_FOR_E4) {
-         status = "Eight BADGES. Unbelievable. The ELITE FOUR is next. I'm getting the hall ready.";
-      } else if (room == null && !Cities.list(game).isEmpty()) {
-         status = "Every GYM slot is filled. Grow your towns and there'll be room for more.";
-      } else if (room != null) {
-         status = "I need leaders. Beat a strong trainer and earn their trust, then send them my way.";
-      } else {
+      if (Cities.list(game).isEmpty()) {
          status = "Found a town first. The CITY MANAGER can help.";
-      }
-      if (badges > 0 && badges < BADGES_FOR_E4) {
-         status = "You have " + badges + " BADGE" + (badges == 1 ? "" : "S") + ". " + status;
+      } else if (!upcoming.isEmpty()) {
+         status = upcoming + " Sign up in town that morning if you want in.";
+      } else if (gymTowns < 8) {
+         status = gymTowns + " of 8 GYM towns so far. Every town gets a GYM, and tournaments decide who leads them.";
+      } else {
+         status = "Eight GYM towns! Once a LEAGUE HALL stands in a CITY, the REGIONAL TOURNAMENT can begin.";
       }
       return say(game, who + status, end);
    }
@@ -128,12 +129,22 @@ class League {
 
    /** Leader's challenge prompt, or null if they've no gym battle for you. */
    static Action gymPrompt(Game game, Npcs.Npc npc, Action end) {
-      if (!isLeader(npc) || hasBadge(game, npc)) {
+      if (!isLeader(npc)) {
          return null;
       }
-      Characters.Def def = Characters.DEFS.get(npc.data.type);
+      // Phase 1: a gym battle once a day, for glory. Phase 2: until you have the badge.
+      if (game.player.generation < 2 ? npc.data.lastBattleDay == game.player.daysPassed : hasBadge(game, npc)) {
+         return null;
+      }
+      boolean canFight = false;
+      for (Pokemon p : game.player.pokemon) {
+         canFight |= !p.isEgg && p.currentStats.get("hp") > 0;
+      }
+      if (!canFight) {
+         return null;
+      }
       Action yes = new DisplayText.Clear(game, new RunCode(() -> TrainerBattle.start(game, npc, true), null));
-      return new DisplayText(game, Characters.T(def.name + " - " + gymLine(npc.data.type)), null, true, false,
+      return new DisplayText(game, Characters.T(npc.fullName() + " - " + gymLine(npc.data.type)), null, true, false,
          new DrawYesNoMenu(null, yes, new DisplayText.Clear(game, end)));
    }
 
@@ -151,6 +162,10 @@ class League {
    }
 
    static Action awardBadge(Game game, Npcs.Npc npc, Action next) {
+      // Phase 1 (the survivor): gym battles are for glory. Badges are the kid's journey.
+      if (game.player.generation < 2) {
+         return new DisplayText(game, Characters.T("You beat GYM LEADER " + npc.fullName() + "! Word will get around."), null, null, next);
+      }
       String badge = badgeOf(npc);
       if (badge == null || game.player.badges.contains(badge)) {
          return next;

@@ -25,6 +25,9 @@ class Cities {
       float y;
       int tier;         // highest tier announced so far (0 village, 1 town, 2 city)
       int foundedDay;
+      ArrayList<String> succession = new ArrayList<>();   // next in line for a gym slot (npc keys)
+      String lastWinner;
+      int lastTourneyDay = -1;
 
       CityData() {
       }
