@@ -72,8 +72,19 @@ class CycleDayNight extends Action {
       return this.layer;
    }
 
+   int bossInitTimer = 120;
+
    @Override
    public void step(Game game) {
+      // Shortly after a world loads: make sure fixed bosses exist and start drawing auras.
+      if (this.bossInitTimer > 0 && --this.bossInitTimer == 0 && game.map != null && game.player != null) {
+         Boss.update(game, false);
+         if (Boss.auraAction == null || !game.actionStack.contains(Boss.auraAction)) {
+            Boss.auraAction = new Boss.DrawAuras();
+            game.insertAction(Boss.auraAction);
+         }
+      }
+
       dayTimer--;
       if (dayTimer <= 0) {
          if (game.map.timeOfDay.equals("day")) {
@@ -103,6 +114,8 @@ class CycleDayNight extends Action {
             game.map.timeOfDay = "day";
             fadeToDayAnim.index = 0;
             this.day++;
+            game.player.daysPassed++;
+            Boss.update(game, true);
             this.signCounter = 300;
             this.bgSprite.setPosition(0.0F, 24.0F);
             game.musicController.startTimeOfDay = "day";

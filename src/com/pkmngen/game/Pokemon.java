@@ -100,6 +100,28 @@ public class Pokemon extends OverworldThing {
    Map<Integer, String[]> learnSet;
    boolean inBattle;
    public boolean aggroPlayer;
+   // Boss state (see Boss.java)
+   public boolean isBoss = false;
+   public boolean bossRaged = false;
+   public boolean bossRoaming = false;
+   public String bossBiome = null;
+
+   public void makeBoss(String biome, boolean roaming) {
+      this.isBoss = true;
+      this.bossBiome = biome;
+      this.bossRoaming = roaming;
+      this.bossRaged = false;
+      this.calcMaxStats();
+      this.currentStats.put("hp", this.maxStats.get("hp"));
+   }
+
+   /** Turn a caught/defeated boss back into a normal Pokemon. */
+   public void clearBoss() {
+      this.isBoss = false;
+      this.bossRaged = false;
+      this.calcMaxStats();
+      this.currentStats.put("hp", Math.min(this.currentStats.get("hp"), this.maxStats.get("hp")));
+   }
    public boolean interactedWith;
    public boolean drawThisFrame;
    public boolean isTrapping;
@@ -312,7 +334,15 @@ public class Pokemon extends OverworldThing {
       }
 
       if (pokemonData instanceof Network.PokemonData) {
-         this.exp = ((Network.PokemonData)pokemonData).exp;
+         Network.PokemonData pd = (Network.PokemonData)pokemonData;
+         this.exp = pd.exp;
+         if (pd.isBoss) {
+            this.isBoss = true;
+            this.bossRaged = pd.bossRaged;
+            this.bossRoaming = pd.bossRoaming;
+            this.bossBiome = pd.bossBiome;
+            this.calcMaxStats();
+         }
       }
    }
 
@@ -543,7 +573,7 @@ public class Pokemon extends OverworldThing {
    }
 
    void calcMaxStats() {
-      this.maxStats.put("hp", (this.baseStats.get("hp") + 50) * this.level / 50 + 10);
+      this.maxStats.put("hp", ((this.baseStats.get("hp") + 50) * this.level / 50 + 10) * (this.isBoss ? 2 : 1));
       this.maxStats.put("attack", this.baseStats.get("attack") * this.level / 50 + 10);
       this.maxStats.put("defense", this.baseStats.get("defense") * this.level / 50 + 10);
       this.maxStats.put("specialAtk", this.baseStats.get("specialAtk") * this.level / 50 + 10);

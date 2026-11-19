@@ -303,6 +303,9 @@ public class Battle {
 
    public static int gen2CalcIfCaught(Game game, Pokemon pokemon, String ballUsed) {
       ballUsed = ballUsed.toLowerCase(Locale.ROOT);
+      if (!Boss.canCatch(pokemon)) {
+         return 0;
+      }
       if (ballUsed.equals("master ball")) {
          return -1;
       } else {
@@ -2365,7 +2368,7 @@ public class Battle {
                            game.battle.oppPokemon,
                            new DisplayText(
                               game,
-                              "Wild " + game.battle.oppPokemon.nickname.toUpperCase(Locale.ROOT) + " appeared!",
+                              Boss.appearText(game),
                               null,
                               null,
                               new WaitFrames(
@@ -2413,7 +2416,9 @@ public class Battle {
             introAction.append(
                new DisplayText(
                   game,
-                  "Angry " + game.battle.oppPokemon.nickname.toUpperCase(Locale.ROOT) + " attacked!",
+                  game.battle.oppPokemon.isBoss
+                     ? Boss.appearText(game)
+                     : "Angry " + game.battle.oppPokemon.nickname.toUpperCase(Locale.ROOT) + " attacked!",
                   null,
                   null,
                   new DisplayText(game, "Enemy " + game.battle.oppPokemon.nickname.toUpperCase(Locale.ROOT) + "' attack went way up!", null, null, null)
@@ -2423,7 +2428,7 @@ public class Battle {
          } else if (fishing) {
             introAction.append(new DisplayText(game, "Unhooked " + game.battle.oppPokemon.nickname.toUpperCase(Locale.ROOT) + " attacked!", null, null, null));
          } else {
-            introAction.append(new DisplayText(game, "Wild " + game.battle.oppPokemon.nickname.toUpperCase(Locale.ROOT) + " appeared!", null, null, null));
+            introAction.append(new DisplayText(game, Boss.appearText(game), null, null, null));
          }
 
          if (game.battle.oppPokemon.isTrapping) {
@@ -2469,7 +2474,7 @@ public class Battle {
                         game.battle.oppPokemon.specie.name,
                         new DisplayText(
                            game,
-                           "Wild " + game.battle.oppPokemon.nickname.toUpperCase(Locale.ROOT) + " appeared!",
+                           Boss.appearText(game),
                            null,
                            null,
                            new SplitAction(
@@ -2933,6 +2938,9 @@ public class Battle {
    }
 
    boolean calcIfRunSuccessful(Game game, Player player) {
+      if (this.oppPokemon != null && this.oppPokemon.isBoss) {
+         return false;
+      }
       if (player.currPokemon.cantEscapeBy != null) {
          return false;
       } else {

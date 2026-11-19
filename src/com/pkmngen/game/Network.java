@@ -405,12 +405,25 @@ public class Network {
       int fieldMovePokemonIndex = -1;
       ArrayList<String> dexSeen;
       ArrayList<String> dexCaught;
+      ArrayList<String> unlocks;
+      HashMap<String, Integer> bossDefeats;
+      HashMap<String, Integer> bossRespawnDay;
+      HashMap<String, String> bossSpots;
+      int daysPassed;
 
       public PlayerData() {
       }
 
       public PlayerData(Player player) {
          super(player);
+         if (Game.staticGame != null && player == Game.staticGame.player) {
+            player.syncDexWithOwnedPokemon(Game.staticGame);
+         }
+         this.unlocks = new ArrayList<>(player.unlocks);
+         this.bossDefeats = new HashMap<>(player.bossDefeats);
+         this.bossRespawnDay = new HashMap<>(player.bossRespawnDay);
+         this.bossSpots = new HashMap<>(player.bossSpots);
+         this.daysPassed = player.daysPassed;
          this.dexSeen = new ArrayList<>(player.dexSeen);
          this.dexCaught = new ArrayList<>(player.dexCaught);
          if (player.hmPokemon != null) {
@@ -511,6 +524,10 @@ public class Network {
 
    public static class PokemonData extends Network.PokemonDataV07 {
       public int exp = 1;
+      public boolean isBoss;
+      public boolean bossRaged;
+      public boolean bossRoaming;
+      public String bossBiome;
 
       public PokemonData() {
       }
@@ -518,11 +535,20 @@ public class Network {
       public PokemonData(Pokemon pokemon) {
          super(pokemon);
          this.exp = pokemon.exp;
+         this.copyBoss(pokemon);
       }
 
       public PokemonData(Pokemon pokemon, int index) {
          super(pokemon, index);
          this.exp = pokemon.exp;
+         this.copyBoss(pokemon);
+      }
+
+      void copyBoss(Pokemon pokemon) {
+         this.isBoss = pokemon.isBoss;
+         this.bossRaged = pokemon.bossRaged;
+         this.bossRoaming = pokemon.bossRoaming;
+         this.bossBiome = pokemon.bossBiome;
       }
    }
 

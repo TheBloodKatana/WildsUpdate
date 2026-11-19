@@ -24,3 +24,20 @@ release (by SheerSt) for personal modding only.
 - Battles: `Battle.java`, `Attack.java`
 - Pokémon data/logic: `Pokemon.java`, `Specie.java`
 - Menus: `DrawPokemonMenu.java`, `DrawSetupMenu.java`, ...
+
+## Added features (step 1)
+- Survival tools: stone/iron axe, pick, shovel (campfire / kiln). Use from bag, Z to use, hold X to put away.
+- PC (indoor build): one shared Pokemon storage across every PC.
+- Healing machine (indoor build): full heal + status cure.
+- Pokedex (campfire craft): seen/caught tracking, national order, detail pages.
+- Balls: Repeat, Luxury, Hunter (kiln). Dive Ball bonus bug fixed.
+- Bosses: one per biome (respawns 5 days after defeat, +5 levels each time), rare roaming
+  bosses (mornings + 1/256 tall-grass encounters). 2x HP, rage at half HP, no fleeing,
+  catchable below 1/4 HP, pulsing aura on the map. Each defeat unlocks the next locked recipe:
+  iron tools, ultra balls, healing machine, repeat/hunter/luxury balls.
+  Tuning knobs at the top of Boss.java.
+
+## Dev mode keys (run with `dev`)
+- F7: spawn a boss two tiles ahead
+- F8: give a Pokedex + 20 of each new ball
+- F9 / F10: place a PC / healing machine on the faced tile

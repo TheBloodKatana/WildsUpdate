@@ -107,6 +107,10 @@ class DrawCraftsMenu extends Menu {
    public void refresh(Game game, int index) {
       this.craftReqs.clear();
       this.craftReqColors.clear();
+      if (Boss.isLocked(this.crafts.get(index).name, game.player)) {
+         this.craftReqs.add("BEAT A BOSS!");
+         this.craftReqColors.add(new Color(1.0F, 1.0F, 1.0F, 0.5F));
+      }
 
       for (Player.Craft craft : this.crafts.get(index).requirements) {
          String text = craft.name.toUpperCase(Locale.ROOT);

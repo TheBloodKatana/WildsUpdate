@@ -55,6 +55,10 @@ class PlayerStanding extends Action {
 
    boolean checkWildEncounter(Game game) {
       Pokemon pokemon = this.checkWildEncounter(game, game.player.position);
+      if (pokemon != null && Game.rand.nextInt(Boss.GRASS_BOSS_CHANCE) == 0) {
+         Tile here = game.map.tiles.get(game.player.position);
+         pokemon.makeBoss(here != null && here.routeBelongsTo != null ? here.routeBelongsTo.name : "", true);
+      }
       if (pokemon != null) {
          game.battle.oppPokemon = pokemon;
       }
@@ -267,6 +271,15 @@ class PlayerStanding extends Action {
    }
 
    public void localStep(Game game) {
+      // Dev mode: F7 spawns a boss two tiles ahead.
+      if (game.debugInputEnabled && game.playerCanMove && Gdx.input.isKeyJustPressed(com.badlogic.gdx.Input.Keys.F7)) {
+         Vector2 ahead = game.player.facingPos().cpy().add(game.player.facingPos().cpy().sub(game.player.position));
+         Tile bossTile = game.map.tiles.get(ahead);
+         if (bossTile != null && bossTile.routeBelongsTo != null && !bossTile.isSolid && !game.map.pokemon.containsKey(ahead)) {
+            Boss.spawn(game, bossTile, bossTile.routeBelongsTo.name, bossTile.routeBelongsTo.level + 10, false);
+         }
+      }
+
       // Dev mode: F8 gives a Pokedex and the new balls.
       if (game.debugInputEnabled && game.playerCanMove && Gdx.input.isKeyJustPressed(com.badlogic.gdx.Input.Keys.F8)) {
          game.player.setItemAmount("pokédex", 1);
@@ -817,6 +830,14 @@ class PlayerStanding extends Action {
                   }
 
                   if (game.player.currFieldMove.equals("BUILD")) {
+                     if (Boss.isLocked(game.player.currBuildTile.name, game.player)) {
+                        game.playerCanMove = false;
+                        game.insertAction(
+                           new DisplayText(game, "Defeat a BOSS POKéMON to unlock this.", null, null, new SetField(game, "playerCanMove", true, null))
+                        );
+                        return;
+                     }
+
                      boolean requirementsMet = true;
 
                      for (String reqName : game.player.buildTileRequirements.get(game.player.currBuildTile.name).keySet()) {

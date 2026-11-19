@@ -41,6 +41,10 @@ class DetectEnemyFaint extends Action {
                )
             )
          );
+         if (game.battle.oppPokemon.isBoss) {
+            nextAction.append(new DisplayText(game, Boss.onDefeated(game, game.battle.oppPokemon), "fanfare1.ogg", null, null));
+         }
+
          if (this.checkEndOfBattle) {
             nextAction.append(new CheckEndOfBattle(null));
          } else {
@@ -49,7 +53,8 @@ class DetectEnemyFaint extends Action {
 
          game.insertAction(nextAction);
       } else {
-         game.insertAction(this.nextAction);
+         Action rage = Boss.checkRage(game, this.nextAction);
+         game.insertAction(rage != null ? rage : this.nextAction);
       }
    }
 }

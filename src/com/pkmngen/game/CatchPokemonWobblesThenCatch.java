@@ -196,6 +196,11 @@ class CatchPokemonWobblesThenCatch extends Action {
          }
 
          game.player.markCaught(game.battle.oppPokemon);
+         if (game.battle.oppPokemon.isBoss) {
+            String bossText = Boss.onDefeated(game, game.battle.oppPokemon);
+            game.battle.oppPokemon.clearBoss();
+            game.insertAction(new DisplayText(game, bossText, null, null, null));
+         }
          game.battle.oppPokemon.previousOwner = game.player;
          game.battle.oppPokemon.aggroPlayer = false;
          game.battle.oppPokemon.cantEscapeBy = null;

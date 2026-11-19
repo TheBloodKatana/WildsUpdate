@@ -87,6 +87,12 @@ public class Player {
    // Pokedex: species ids (see dexId) the player has seen / caught.
    public java.util.HashSet<String> dexSeen = new java.util.HashSet<>();
    public java.util.HashSet<String> dexCaught = new java.util.HashSet<>();
+   // Boss progression (see Boss.java)
+   public java.util.HashSet<String> unlocks = new java.util.HashSet<>();
+   public HashMap<String, Integer> bossDefeats = new HashMap<>();
+   public HashMap<String, Integer> bossRespawnDay = new HashMap<>();
+   public HashMap<String, String> bossSpots = new HashMap<>();
+   public int daysPassed = 0;
 
    /** Folds regional forms / letters into their base species id. */
    public static String dexId(String specieName) {
@@ -714,6 +720,19 @@ public class Player {
          if (pd.dexCaught != null) {
             this.dexCaught.addAll(pd.dexCaught);
          }
+         if (pd.unlocks != null) {
+            this.unlocks.addAll(pd.unlocks);
+         }
+         if (pd.bossDefeats != null) {
+            this.bossDefeats.putAll(pd.bossDefeats);
+         }
+         if (pd.bossRespawnDay != null) {
+            this.bossRespawnDay.putAll(pd.bossRespawnDay);
+         }
+         if (pd.bossSpots != null) {
+            this.bossSpots.putAll(pd.bossSpots);
+         }
+         this.daysPassed = pd.daysPassed;
       }
 
       if (playerData instanceof com.pkmngen.game.Network.PlayerDataV07) {
@@ -791,6 +810,9 @@ public class Player {
    }
 
    public boolean hasCraftRequirements(Player.Craft craft, int amount) {
+      if (Boss.isLocked(craft.name, this)) {
+         return false;
+      }
       boolean hasRequirements = true;
 
       for (Player.Craft req : craft.requirements) {
