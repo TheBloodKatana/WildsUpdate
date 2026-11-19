@@ -64,7 +64,7 @@ public class Build {
 
         if (args.length > 0 && args[0].equals("run")) {
             String java = Paths.get(System.getProperty("java.home"), "bin", "java").toString();
-            List<String> cmd = new ArrayList<>(Arrays.asList(java, "-jar", "pokewilds.jar"));
+            List<String> cmd = new ArrayList<>(Arrays.asList(java, "-Xmx4g", "-jar", "pokewilds.jar"));
             cmd.addAll(Arrays.asList(args).subList(1, args.length));
             Process p = new ProcessBuilder(cmd).directory(DIST.toFile()).inheritIO().start();
             System.exit(p.waitFor());
