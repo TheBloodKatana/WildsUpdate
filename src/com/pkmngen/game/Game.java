@@ -809,16 +809,27 @@ public class Game extends ApplicationAdapter {
       }
 
       if (this.map != null && this.map.bottomLeft != null && this.map.topRight != null) {
-         if (this.cam.position.x - this.currScreen.x / 6.0F < this.map.bottomLeft.x) {
-            this.cam.position.x = this.map.bottomLeft.x + this.currScreen.x / 6.0F;
+         // Half of the visible world area, in world units. This used to be
+         // hardcoded as currScreen / 6 (only correct at scale 3).
+         float unitsPerPixel = this.viewport.getUnitsPerPixel();
+         float halfW = this.currScreen.x * unitsPerPixel / 2.0F;
+         float halfH = this.currScreen.y * unitsPerPixel / 2.0F;
+         if (Platform.touchUi() && this.currScreen.x <= this.currScreen.y) {
+            // Portrait phone: only the 160x144 game screen is visible,
+            // the rest of the screen is covered by the touch controls.
+            halfH = 72.0F;
          }
 
-         if (this.cam.position.x + this.currScreen.x / 6.0F > this.map.topRight.x + 16.0F) {
-            this.cam.position.x = this.map.topRight.x - this.currScreen.x / 6.0F + 16.0F;
+         if (this.cam.position.x - halfW < this.map.bottomLeft.x) {
+            this.cam.position.x = this.map.bottomLeft.x + halfW;
          }
 
-         if (this.cam.position.y - this.currScreen.y / 6.0F < this.map.bottomLeft.y) {
-            this.cam.position.y = this.map.bottomLeft.y + this.currScreen.y / 6.0F;
+         if (this.cam.position.x + halfW > this.map.topRight.x + 16.0F) {
+            this.cam.position.x = this.map.topRight.x - halfW + 16.0F;
+         }
+
+         if (this.cam.position.y - halfH < this.map.bottomLeft.y) {
+            this.cam.position.y = this.map.bottomLeft.y + halfH;
          }
       }
 
@@ -999,14 +1010,24 @@ public class Game extends ApplicationAdapter {
 
    public void resize(int width, int height) {
       if (height > 0) {
-         this.viewport.update(width + width % 2, height + height % 2);
+         boolean landscape = width > height;
          if (Platform.touchUi()) {
+            // Make the world camera use the same scale as the 160x144 game
+            // screen: portrait fits the width, landscape fits the height.
+            // Without this the phone build shows way too much of the map.
+            this.viewport.setUnitsPerPixel(landscape ? 144.0F / height : 160.0F / width);
+         }
+
+         this.viewport.update(width + width % 2, height + height % 2);
+         if (Platform.touchUi() && !landscape) {
             int menuHeight = 160 * height / width;
             int offsetY = (menuHeight - 144) / 2;
             this.uiBatch.getProjectionMatrix().setToOrtho2D(0.0F, -offsetY, 160.0F, menuHeight);
             int viewportWidth = 160;
             System.out.printf("Setting android width = %f, height = %f%n", this.cam.viewportWidth, this.cam.viewportHeight);
          } else {
+            // Desktop, and phones in landscape: 144 units tall, 160 wide game
+            // screen centered, extra space on the left and right.
             float pixelHeight = 0.0F;
             if (height % 2 == 1) {
                pixelHeight = 144.0F / height;
