@@ -273,12 +273,14 @@ public class Network {
       Network.MapTiles mapTiles = new Network.MapTiles();
       HashMap<Vector2, Network.PokemonData> overworldPokemon = new HashMap<>();
       ArrayList<String> islandSpecials;
+      ArrayList<Npcs.NpcData> npcs;
 
       public MapSaveData() {
       }
 
       public MapSaveData(Game game) {
          this.islandSpecials = game.map.islandSpecials;
+         this.npcs = Npcs.save(game);
          this.mapTiles.timeOfDay = game.map.timeOfDay;
          this.mapTiles.dayTimer = CycleDayNight.dayTimer;
 
@@ -414,6 +416,7 @@ public class Network {
       int daysPassed;
       int bossesBeaten;
       boolean cavesPlaced;
+      boolean visitedCave;
       HashMap<String, Integer> caveEntrances;
 
       public PlayerData() {
@@ -431,6 +434,7 @@ public class Network {
          this.daysPassed = player.daysPassed;
          this.bossesBeaten = player.bossesBeaten;
          this.cavesPlaced = player.cavesPlaced;
+         this.visitedCave = player.visitedCave;
          this.caveEntrances = new HashMap<>(player.caveEntrances);
          this.dexSeen = new ArrayList<>(player.dexSeen);
          this.dexCaught = new ArrayList<>(player.dexCaught);

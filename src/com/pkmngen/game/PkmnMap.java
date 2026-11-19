@@ -67,6 +67,8 @@ public class PkmnMap {
    public Route pcRoute;
    // Special species for islands away from home (see Islands.java); null until rolled.
    public ArrayList<String> islandSpecials;
+   // Villagers living on this island (see Npcs.java).
+   public ArrayList<Npcs.Npc> npcs;
 
    /** Returns the shared PC storage, adopting the one saved on any PC tile. */
    public Route getPcRoute() {
@@ -1437,6 +1439,7 @@ public class PkmnMap {
       try {
          Network.MapSaveData mapData = Save.readData(this.id + ".sav/map" + this.currMapId, Network.MapSaveData.class);
          this.islandSpecials = mapData.islandSpecials;
+         this.npcs = Npcs.load(mapData.npcs);
          this.overworldTiles.clear();
          this.bottomLeft = new Vector2();
          this.topRight = new Vector2();

@@ -273,6 +273,49 @@ class PlayerStanding extends Action {
    }
 
    public void localStep(Game game) {
+      // Dev mode: F2 spawns the next villager type on the faced tile (no house needed).
+      if (game.debugInputEnabled && game.playerCanMove && game.map.tiles == game.map.overworldTiles
+         && Gdx.input.isKeyJustPressed(com.badlogic.gdx.Input.Keys.F2)) {
+         if (game.map.npcs == null) {
+            game.map.npcs = new ArrayList<>();
+         }
+         Vector2 spot = game.player.facingPos();
+         String nextType = null;
+         for (String id : Npcs.TYPES.keySet()) {
+            boolean present = false;
+            for (Npcs.Npc n : game.map.npcs) {
+               present |= n.data.type.equals(id);
+            }
+            if (!present) {
+               nextType = id;
+               break;
+            }
+         }
+         if (nextType != null) {
+            Npcs.NpcData d = new Npcs.NpcData();
+            d.type = nextType;
+            d.name = Npcs.TYPES.get(nextType).names[0];
+            d.x = d.homeX = spot.x;
+            d.y = d.homeY = spot.y;
+            d.bedLayer = -1;
+            game.map.npcs.add(new Npcs.Npc(d));
+            Npcs.ensureDriver(game);
+         }
+      }
+
+      // Dev mode: F3 forces a villager arrival check (needs a free bed in a house).
+      if (game.debugInputEnabled && game.playerCanMove && Gdx.input.isKeyJustPressed(com.badlogic.gdx.Input.Keys.F3)) {
+         if (game.map.npcs == null) {
+            game.map.npcs = new ArrayList<>();
+         }
+         Npcs.tryArrival(game, false);
+         if (Npcs.pendingText == null) {
+            game.playerCanMove = false;
+            game.insertAction(new DisplayText(game, "No villager can come: build a house with a free BED.", null, null,
+               new SetField(game, "playerCanMove", true, null)));
+         }
+      }
+
       // Dev mode: F4 jumps near the right edge of the map (for testing island travel).
       if (game.debugInputEnabled && game.playerCanMove && game.map.tiles == game.map.overworldTiles
          && Gdx.input.isKeyJustPressed(com.badlogic.gdx.Input.Keys.F4)) {
@@ -859,6 +902,10 @@ class PlayerStanding extends Action {
                   } else {
                      bTimer++;
                   }
+               }
+
+               if (InputProcessor.aJustPressed && Npcs.talk(game, game.player.facingPos())) {
+                  return;
                }
 
                if (InputProcessor.aJustPressed) {
@@ -1818,6 +1865,8 @@ class PlayerStanding extends Action {
                      } else {
                         game.insertAction(new PlayerMoving(game, this.alternate));
                      }
+                  } else if (Npcs.at(game, newPos) != null) {
+                     game.insertAction(new PlayerBump(game));
                   } else if (game.map.pokemon.containsKey(newPos) && game.map.pokemon.get(newPos).mapTiles == game.map.tiles) {
                      game.insertAction(new PlayerBump(game));
                   } else {

@@ -247,6 +247,9 @@ class DrawCraftsMenu extends Menu {
       }
 
       char[] textArray = "CRAFTING MENU".toCharArray();
+      if (Npcs.isTradeList(this.crafts)) {
+         textArray = "TRADE MENU".toCharArray();
+      }
       if (this.crafts == game.player.fossilCrafts) {
          textArray = "FOSSIL MENU".toCharArray();
       }

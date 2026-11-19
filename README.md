@@ -56,7 +56,17 @@ release (by SheerSt) for personal modding only.
   of its wild encounters; ring 3+ islands have a 35% chance of a legendary boss (birds/beasts).
   Caves, bosses and crates work per island.
 
+- Villagers (Npcs.java): NPCs move in only if a house you built has a free BED; each morning
+  one whose unlock condition is met may arrive and wander near that house's door by day (home at
+  night). Press A to talk; daily talks raise friendship (gifts from 3). Roster: MERCHANT (always,
+  barter), NURSE (10 caught, free heals), HIKER (visited a cave, ore upgrades), FISHER (raft or
+  rod, rod upgrades), SCIENTIST (30 seen, crystal ore -> stones), ELDER (beat a boss, boss hints).
+  Trades open in the crafting menu (TRADE MENU). Saved per island. Sprites: assets/npc/, all 69
+  extracted Crystal overworld characters in art-reference/npc-rows/.
+
 ## Dev mode keys (run with `dev`)
+- F2: spawn the next villager on the faced tile (no house needed)
+- F3: force a villager arrival check (needs a free bed)
 - F4: jump next to the map's right edge (to test island travel)
 - F5: place a shipwreck crate on the faced tile
 - F6: jump to the nearest cave entrance

@@ -104,6 +104,7 @@ class CaveGen {
    /** Returns the interior index for this entrance, generating the cave on first visit. */
    static int enter(Game game, Tile door) {
       int number = game.player.caveEntrances.get(key(door.position));
+      game.player.visitedCave = true;
       int base = baseIndex(number);
       if (game.map.getInteriorLayer(base).isEmpty()) {
          int level = door.routeBelongsTo != null ? door.routeBelongsTo.level : 20;

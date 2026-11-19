@@ -96,6 +96,7 @@ public class Player {
    public int bossesBeaten = 0;
    // Caves (see CaveGen.java): entrance "x,y" -> cave number
    public boolean cavesPlaced = false;
+   public boolean visitedCave = false;
    public HashMap<String, Integer> caveEntrances = new HashMap<>();
 
    /** Highest level of wild Pokemon you can catch. Raised by beating bosses. */
@@ -750,6 +751,7 @@ public class Player {
          this.daysPassed = pd.daysPassed;
          this.bossesBeaten = pd.bossesBeaten;
          this.cavesPlaced = pd.cavesPlaced;
+         this.visitedCave = pd.visitedCave;
          if (pd.caveEntrances != null) {
             this.caveEntrances.putAll(pd.caveEntrances);
          }
