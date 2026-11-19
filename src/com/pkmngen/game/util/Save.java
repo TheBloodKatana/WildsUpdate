@@ -34,7 +34,7 @@ public class Save {
 
    private static <T> void saveJson(@NotNull T data, String path) throws Save.SaveFailure {
       try {
-         ZipOutputStream zip = new ZipOutputStream(new BufferedOutputStream(Files.newOutputStream(Paths.get(path))));
+         ZipOutputStream zip = new ZipOutputStream(new BufferedOutputStream(Files.newOutputStream(Paths.get(com.pkmngen.game.Platform.path(path)))));
 
          try {
             Writer writer = new OutputStreamWriter(zip, StandardCharsets.UTF_8);
@@ -71,7 +71,7 @@ public class Save {
 
    public static void saveMinimap(PkmnMap map, String path) throws Save.SaveFailure {
       try {
-         FileHandle file = new FileHandle(path);
+         FileHandle file = Gdx.files.local(path);
          if (map.minimap == null) {
             map.minimap = new Pixmap(map.width(), map.height(), com.badlogic.gdx.graphics.Pixmap.Format.RGBA8888);
             map.minimap.setColor(0.0F, 0.0F, 0.0F, 1.0F);

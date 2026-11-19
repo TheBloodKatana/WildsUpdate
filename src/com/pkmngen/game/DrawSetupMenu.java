@@ -24,8 +24,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
-import javax.swing.JFrame;
-import javax.swing.JOptionPane;
 
 class DrawSetupMenu extends Action {
    public static boolean drawChoosePokemonText = true;
@@ -213,8 +211,18 @@ class DrawSetupMenu extends Action {
       return TextField.updateField(character, characters, 11, false);
    }
 
+   private boolean keyboardShown = false;
+
    @Override
    public void step(final Game game) {
+      // Android: the on-screen keyboard comes up while a name field is selected
+      if (Platform.android()) {
+         boolean want = this.fieldSelected == DrawSetupMenu.TextFieldSelected.NAME || this.fieldSelected == DrawSetupMenu.TextFieldSelected.MAP_NAME;
+         if (want != this.keyboardShown) {
+            Gdx.input.setOnscreenKeyboardVisible(want);
+            this.keyboardShown = want;
+         }
+      }
       this.newPos = this.arrowCoords.get(currIndex);
       this.fieldSelected = DrawSetupMenu.TextFieldSelected.NONE;
 
@@ -583,7 +591,7 @@ class DrawSetupMenu extends Action {
                if (!game.debugInputEnabled
                   && this.newLoadIndex == 0
                   && this.fileNames.contains(mapName + ".sav")
-                  && JOptionPane.showConfirmDialog(null, "A save file with the same name already exists - overwrite?", "WARNING", 0) == 1) {
+                  && !Platform.confirm("A save file with the same name already exists - overwrite?", "WARNING")) {
                   return;
                }
 
@@ -622,10 +630,9 @@ class DrawSetupMenu extends Action {
                         InputProcessor.aJustPressed = false;
                      } catch (Exception var16) {
                         var16.printStackTrace();
-                        JFrame frame = new JFrame("Error");
                         StringWriter traceback = new StringWriter();
                         StackTraces.writeStackTrace(var16, new PrintWriter(traceback));
-                        JOptionPane.showMessageDialog(frame, "There was an error loading this file:\n\n" + traceback.toString());
+                        Platform.alert("There was an error loading this file:\n\n" + traceback.toString());
                         System.exit(0);
                      }
 

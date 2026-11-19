@@ -6,3 +6,10 @@ dist/
 .vscode/
 *.iml
 .DS_Store
+
+# Android
+.gradle/
+local.properties
+android/build/
+android/libs/
+*.apk

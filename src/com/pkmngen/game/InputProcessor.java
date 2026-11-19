@@ -143,7 +143,7 @@ class InputProcessor extends Action {
             }
          }
 
-         if (!Gdx.input.isKeyPressed(keyboardUp) && !this.gamepadUp && !DrawMobileControls.upArrowSprite.getBoundingRectangle().contains(this.touchLoc)) {
+         if (!Gdx.input.isKeyPressed(keyboardUp) && !this.gamepadUp && !DrawMobileControls.touched(DrawMobileControls.upArrowSprite)) {
             upJustPressed = false;
             upPressed = false;
          } else {
@@ -155,7 +155,7 @@ class InputProcessor extends Action {
             upPressed = true;
          }
 
-         if (!Gdx.input.isKeyPressed(keyboardDown) && !this.gamepadDown && !DrawMobileControls.downArrowSprite.getBoundingRectangle().contains(this.touchLoc)) {
+         if (!Gdx.input.isKeyPressed(keyboardDown) && !this.gamepadDown && !DrawMobileControls.touched(DrawMobileControls.downArrowSprite)) {
             downJustPressed = false;
             downPressed = false;
          } else {
@@ -167,7 +167,7 @@ class InputProcessor extends Action {
             downPressed = true;
          }
 
-         if (!Gdx.input.isKeyPressed(keyboardLeft) && !this.gamepadLeft && !DrawMobileControls.leftArrowSprite.getBoundingRectangle().contains(this.touchLoc)) {
+         if (!Gdx.input.isKeyPressed(keyboardLeft) && !this.gamepadLeft && !DrawMobileControls.touched(DrawMobileControls.leftArrowSprite)) {
             leftJustPressed = false;
             leftPressed = false;
          } else {
@@ -181,7 +181,7 @@ class InputProcessor extends Action {
 
          if (!Gdx.input.isKeyPressed(keyboardRight)
             && !this.gamepadRight
-            && !DrawMobileControls.rightArrowSprite.getBoundingRectangle().contains(this.touchLoc)) {
+            && !DrawMobileControls.touched(DrawMobileControls.rightArrowSprite)) {
             rightJustPressed = false;
             rightPressed = false;
          } else {
@@ -193,7 +193,7 @@ class InputProcessor extends Action {
             rightPressed = true;
          }
 
-         if (!Gdx.input.isKeyPressed(keyboardA) && !this.gamepadA && !DrawMobileControls.aSprite.getBoundingRectangle().contains(this.touchLoc)) {
+         if (!Gdx.input.isKeyPressed(keyboardA) && !this.gamepadA && !DrawMobileControls.touched(DrawMobileControls.aSprite)) {
             aJustPressed = false;
             aPressed = false;
          } else {
@@ -205,7 +205,7 @@ class InputProcessor extends Action {
             aPressed = true;
          }
 
-         if (!Gdx.input.isKeyPressed(keyboardB) && !this.gamepadB && !DrawMobileControls.bSprite.getBoundingRectangle().contains(this.touchLoc)) {
+         if (!Gdx.input.isKeyPressed(keyboardB) && !this.gamepadB && !DrawMobileControls.touched(DrawMobileControls.bSprite) && !DrawMobileControls.backPressed()) {
             bJustPressed = false;
             bPressed = false;
          } else {
@@ -217,7 +217,7 @@ class InputProcessor extends Action {
             bPressed = true;
          }
 
-         if (!Gdx.input.isKeyPressed(keyboardStart) && !this.gamepadStart && !DrawMobileControls.startSprite.getBoundingRectangle().contains(this.touchLoc)) {
+         if (!Gdx.input.isKeyPressed(keyboardStart) && !this.gamepadStart && !DrawMobileControls.touched(DrawMobileControls.startSprite)) {
             startJustPressed = false;
             startPressed = false;
          } else {
@@ -229,7 +229,7 @@ class InputProcessor extends Action {
             startPressed = true;
          }
 
-         if (!Gdx.input.isKeyPressed(keyboardL) && !this.gamepadL) {
+         if (!Gdx.input.isKeyPressed(keyboardL) && !this.gamepadL && !(Platform.touchUi() && DrawMobileControls.touched(DrawMobileControls.lSprite))) {
             lJustPressed = false;
             lPressed = false;
          } else {
@@ -241,7 +241,7 @@ class InputProcessor extends Action {
             lPressed = true;
          }
 
-         if (!Gdx.input.isKeyPressed(keyboardR) && !this.gamepadR) {
+         if (!Gdx.input.isKeyPressed(keyboardR) && !this.gamepadR && !(Platform.touchUi() && DrawMobileControls.touched(DrawMobileControls.rSprite))) {
             rJustPressed = false;
             rPressed = false;
          } else {

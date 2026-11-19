@@ -1,0 +1,4 @@
+// Android build only (open this folder in Android Studio). The PC build is `java Build.java`.
+plugins {
+    id 'com.android.application' version '8.2.2' apply false
+}

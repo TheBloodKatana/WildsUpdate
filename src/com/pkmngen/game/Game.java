@@ -56,7 +56,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Random;
-import javax.swing.JOptionPane;
 
 public class Game extends ApplicationAdapter {
    public static Game staticGame;
@@ -168,6 +167,9 @@ public class Game extends ApplicationAdapter {
             case "dev":
                this.debugInputEnabled = true;
                break;
+            case "phone":
+               Platform.phoneLayout = true;
+               break;
             case "cin":
                this.cinematic = true;
                break;
@@ -234,7 +236,7 @@ public class Game extends ApplicationAdapter {
       this.initBrailleDict();
       this.initInverseTextDict();
       this.insertAction(new InputProcessor());
-      if (Gdx.app.getType() == ApplicationType.Android) {
+      if (Platform.touchUi()) {
          this.insertAction(new DrawMobileControls(this));
       }
 
@@ -249,10 +251,10 @@ public class Game extends ApplicationAdapter {
       System.out.println(Gdx.gl.glGetString(7937));
       System.out.println("OpenGL info");
       System.out.println(Gdx.gl.glGetString(7938));
-      this.cloudTexture = TextureCache.get(Gdx.files.local("cloud5.png"));
-      this.nightTexture = TextureCache.get(Gdx.files.local("stars1.png"));
+      this.cloudTexture = TextureCache.get(Gdx.files.internal("cloud5.png"));
+      this.nightTexture = TextureCache.get(Gdx.files.internal("stars1.png"));
       this.currCloudTexture = this.cloudTexture;
-      this.islandTexture = TextureCache.get(Gdx.files.local("island1.png"));
+      this.islandTexture = TextureCache.get(Gdx.files.internal("island1.png"));
       if (this.skipUpdateCheck) {
          this.versionControl.checkVersion();
       }
@@ -998,7 +1000,7 @@ public class Game extends ApplicationAdapter {
    public void resize(int width, int height) {
       if (height > 0) {
          this.viewport.update(width + width % 2, height + height % 2);
-         if (Gdx.app.getType() == ApplicationType.Android) {
+         if (Platform.touchUi()) {
             int menuHeight = 160 * height / width;
             int offsetY = (menuHeight - 144) / 2;
             this.uiBatch.getProjectionMatrix().setToOrtho2D(0.0F, -offsetY, 160.0F, menuHeight);
@@ -1173,7 +1175,7 @@ public class Game extends ApplicationAdapter {
    }
 
    public static void saveErrorLogAndNotifyUser(String message, Throwable throwable) {
-      File logFile = new File("error.log");
+      File logFile = Platform.file("error.log");
 
       try {
          PrintWriter writer = new PrintWriter(new FileWriter(logFile, true));
@@ -1185,8 +1187,7 @@ public class Game extends ApplicationAdapter {
             StackTraces.writeStackTrace(throwable, writer);
             StringWriter traceback = new StringWriter();
             StackTraces.writeStackTrace(throwable, new PrintWriter(traceback));
-            JOptionPane.showMessageDialog(
-               null,
+            Platform.alert(
                message
                   + traceback.toString()
                   + "\n\nPlease report this issue on the PokeWilds discord or Github, and attach "

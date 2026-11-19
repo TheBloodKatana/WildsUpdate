@@ -1206,7 +1206,7 @@ public class PkmnMap {
 
    public void loadFromFileLegacy(Game game) {
       try {
-         InputStream inputStream = new InflaterInputStream(new FileInputStream(this.id + ".sav"));
+         InputStream inputStream = new InflaterInputStream(new FileInputStream(Platform.path(this.id + ".sav")));
          Input input = new Input(inputStream);
          Network.SaveData saveData = (Network.SaveData)game.server.getKryo().readObject(input, Network.SaveData.class);
          input.close();
@@ -1395,7 +1395,7 @@ public class PkmnMap {
       System.out.println("Backing up previous save file...");
 
       try {
-         ZipUtil.pack(new File(game.map.id + ".sav/"), new File(game.map.id + ".sav.zip"));
+         ZipUtil.pack(Platform.file(game.map.id + ".sav/"), Platform.file(game.map.id + ".sav.zip"));
       } catch (Exception var5) {
          var5.printStackTrace();
       }
@@ -1926,7 +1926,7 @@ public class PkmnMap {
                System.out.println("Backing up previous save file...");
 
                try {
-                  Files.copy(Paths.get(game.map.id + ".sav"), Paths.get(game.map.id + ".sav.backup"), StandardCopyOption.REPLACE_EXISTING);
+                  Files.copy(Paths.get(Platform.path(game.map.id + ".sav")), Paths.get(Platform.path(game.map.id + ".sav.backup")), StandardCopyOption.REPLACE_EXISTING);
                } catch (IOException var4) {
                   var4.printStackTrace();
                }
@@ -1934,7 +1934,7 @@ public class PkmnMap {
                System.out.println("Saving game to file...");
 
                try {
-                  this.outputStream = new DeflaterOutputStream(new FileOutputStream(game.map.id + ".sav"));
+                  this.outputStream = new DeflaterOutputStream(new FileOutputStream(Platform.path(game.map.id + ".sav")));
                   this.output = new Output(this.outputStream);
                } catch (FileNotFoundException var3) {
                   var3.printStackTrace();

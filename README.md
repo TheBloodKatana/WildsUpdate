@@ -110,6 +110,26 @@ release (by SheerSt) for personal modding only.
   noon and battle you once a day). Win it and you can pass the torch: your character becomes a core
   character with your name, sprite and winning team; you play the kid.
 
+## Android
+
+The `android/` folder builds the same game for phones (portrait, Game Boy style touch controls).
+
+1. Install Android Studio (it comes with everything else it needs).
+2. File > Open, and pick this whole WildsUpdate folder. Let it sync; the first time it downloads Gradle
+   and the libraries, which takes a few minutes. If it offers to create the Gradle wrapper, say yes.
+3. Build > Build App Bundle(s) / APK(s) > Build APK(s). The APK ends up in
+   `android/build/outputs/apk/debug/`.
+4. Put the APK on your phone and open it to install (allow "install unknown apps"), or plug the phone
+   in with USB debugging on and press Run.
+
+Controls: D-pad bottom left, A and B bottom right, START (right pill) and SELECT (left pill, opens the
+map) at the bottom, L and R above. The phone's Back button is B. Several fingers at once work.
+Saves live in the app's own storage. Run the PC build with `phone` (`java -jar pokewilds.jar dev phone`)
+to preview the phone layout with the mouse as your finger.
+
+Notes: the APK is big (~300 MB of game assets). Big worlds need a lot of memory; on a phone stick to
+the S or M world size.
+
 ## Keys
 - N: show/hide the minimap. M: full map.
 

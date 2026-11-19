@@ -1,0 +1,125 @@
+// PokeWilds for Android. Uses the same game code (../src) and assets (../assets) as the PC build.
+plugins {
+    id 'com.android.application'
+}
+
+def gdxVersion = '1.11.0'
+def controllersVersion = '2.2.2'
+
+android {
+    namespace 'com.pkmngen.game.android'
+    compileSdk 34
+
+    defaultConfig {
+        applicationId 'com.pkmngen.wildsupdate'
+        minSdk 26          // java.nio.file and java.time, used by saving
+        targetSdk 34
+        versionCode 1
+        versionName '0.8.11-wu'
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+
+    sourceSets {
+        main {
+            java.srcDirs += "$buildDir/gamesrc"
+            assets.srcDirs = ['../assets']
+            jniLibs.srcDirs = ['libs']
+        }
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            // signs with the debug key so the APK installs right away; use your own key to publish
+            signingConfig signingConfigs.debug
+        }
+    }
+
+    packagingOptions {
+        resources {
+            excludes += ['META-INF/*.kotlin_module', 'META-INF/versions/**', 'META-INF/LICENSE*', 'META-INF/NOTICE*', 'META-INF/DEPENDENCIES']
+        }
+    }
+}
+
+configurations { natives }
+
+dependencies {
+    implementation "com.badlogicgames.gdx:gdx:$gdxVersion"
+    implementation "com.badlogicgames.gdx:gdx-backend-android:$gdxVersion"
+    implementation "com.badlogicgames.gdx:gdx-box2d:$gdxVersion"
+    implementation "com.badlogicgames.gdx:gdx-freetype:$gdxVersion"
+    implementation "com.badlogicgames.gdx-controllers:gdx-controllers-core:$controllersVersion"
+    implementation "com.badlogicgames.gdx-controllers:gdx-controllers-android:$controllersVersion"
+    implementation 'org.jetbrains.kotlin:kotlin-stdlib:1.7.20'
+
+    // gson, kryonet, zt-zip, the GBS music player and friends: taken straight out of the PC libs jar
+    implementation files("$buildDir/gamelibs/game-libs.jar")
+
+    natives "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-armeabi-v7a"
+    natives "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-arm64-v8a"
+    natives "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-x86"
+    natives "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-x86_64"
+    natives "com.badlogicgames.gdx:gdx-box2d-platform:$gdxVersion:natives-armeabi-v7a"
+    natives "com.badlogicgames.gdx:gdx-box2d-platform:$gdxVersion:natives-arm64-v8a"
+    natives "com.badlogicgames.gdx:gdx-box2d-platform:$gdxVersion:natives-x86"
+    natives "com.badlogicgames.gdx:gdx-box2d-platform:$gdxVersion:natives-x86_64"
+    natives "com.badlogicgames.gdx:gdx-freetype-platform:$gdxVersion:natives-armeabi-v7a"
+    natives "com.badlogicgames.gdx:gdx-freetype-platform:$gdxVersion:natives-arm64-v8a"
+    natives "com.badlogicgames.gdx:gdx-freetype-platform:$gdxVersion:natives-x86"
+    natives "com.badlogicgames.gdx:gdx-freetype-platform:$gdxVersion:natives-x86_64"
+}
+
+// The game's own source, minus the PC launcher (it needs LWJGL/Swing, which Android doesn't have).
+tasks.register('copyGameSources', Sync) {
+    from '../src'
+    into "$buildDir/gamesrc"
+    exclude 'com/pkmngen/game/desktop/**'
+}
+
+// Pure-Java libraries the game uses, pulled from libs/runtime-libs.jar.
+tasks.register('gameLibsJar', Jar) {
+    archiveFileName = 'game-libs.jar'
+    destinationDirectory = file("$buildDir/gamelibs")
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+    from(zipTree('../libs/runtime-libs.jar')) {
+        include 'gme/**'
+        include 'com/esotericsoftware/**'
+        include 'org/objenesis/**'
+        include 'org/zeroturnaround/**'
+        include 'org/slf4j/**'
+        include 'net/harawata/**'
+        include 'org/jetbrains/annotations/**'
+        include 'com/google/gson/**'
+        include 'com/pkmngen/leaks/LeakTracer.class'
+        include 'com/pkmngen/leaks/LeakTracer$NoOp.class'
+    }
+}
+
+// libGDX native libraries (.so) for each phone CPU type.
+tasks.register('copyAndroidNatives') {
+    doFirst {
+        ['armeabi-v7a', 'arm64-v8a', 'x86', 'x86_64'].each { file("libs/$it").mkdirs() }
+        configurations.natives.copy().files.each { jar ->
+            def abi = ['armeabi-v7a', 'arm64-v8a', 'x86_64', 'x86'].find { jar.name.endsWith("natives-${it}.jar") }
+            if (abi != null) {
+                copy {
+                    from zipTree(jar)
+                    into file("libs/$abi")
+                    include '*.so'
+                }
+            }
+        }
+    }
+}
+
+tasks.named('preBuild') {
+    dependsOn 'copyGameSources', 'gameLibsJar', 'copyAndroidNatives'
+}
+tasks.matching { it.name.contains('merge') && it.name.contains('JniLibFolders') }.configureEach {
+    dependsOn 'copyAndroidNatives'
+}

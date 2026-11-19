@@ -27,6 +27,11 @@ public class DesktopLauncher {
    public static void main(String[] args) {
       allowMacOsToRunWithoutFlag();
       checkForUserHomeInTempFolder();
+      for (String a : args) {
+         if (a.equals("phone")) {
+            System.setProperty("pokewilds.phone", "1");
+         }
+      }
       int scale = getScale();
       Lwjgl3ApplicationConfiguration config = createConfig(scale);
       processArgs(args, config);
@@ -114,6 +119,9 @@ public class DesktopLauncher {
    private static Lwjgl3ApplicationConfiguration createConfig(int scale) {
       Lwjgl3ApplicationConfiguration config = new Lwjgl3ApplicationConfiguration();
       config.setWindowedMode(scale * 160, scale * 144);
+      if (System.getProperty("pokewilds.phone") != null) {
+         config.setWindowedMode(360, 760);   // phone-shaped preview of the Android layout
+      }
       config.setTitle("PokeWilds");
       config.setWindowIcon(new String[]{"icon-64.png", "icon-32.png", "icon-256.png"});
       config.setForegroundFPS(60);

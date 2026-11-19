@@ -8,7 +8,6 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.net.URLConnection;
-import javax.swing.JOptionPane;
 
 public class VersionControl {
    public String localVersion = "";
@@ -50,7 +49,7 @@ public class VersionControl {
 
          if (!this.localVersion.matches(this.latestVersion)) {
             String text = "A new update is available!\nCurrently Installed: " + this.localVersion + "\nLatest: " + this.latestVersion + "\n\nClick to update.";
-            if (JOptionPane.showConfirmDialog(null, text, "Update Available", 0) == 0) {
+            if (com.pkmngen.game.Platform.confirm(text, "Update Available")) {
                this.runUpdater();
             }
          } else {
