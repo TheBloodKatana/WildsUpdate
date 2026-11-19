@@ -420,6 +420,7 @@ public class Network {
       ArrayList<Calendar.Event> legendEvents;
       ArrayList<String> legendsDone;
       int generation;
+      int championYear;
       HashMap<String, Integer> townRep;
       HashMap<String, Integer> bossDefeats;
       HashMap<String, Integer> bossRespawnDay;
@@ -445,6 +446,7 @@ public class Network {
          this.legendEvents = new ArrayList<>(player.legendEvents);
          this.legendsDone = new ArrayList<>(player.legendsDone);
          this.generation = player.generation;
+         this.championYear = player.championYear;
          this.townRep = new HashMap<>(player.townRep);
          this.bossDefeats = new HashMap<>(player.bossDefeats);
          this.bossRespawnDay = new HashMap<>(player.bossRespawnDay);

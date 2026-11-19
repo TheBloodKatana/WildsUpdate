@@ -170,6 +170,30 @@ class Characters {
       d.questIntro = "Catch 4 different BUG or GRASS types. I want to know you understand this island.";
       d.questDone = "Good. You see it now. The island is alive.";
 
+      d = def("dad", "DAD", false);
+      d.battleAsk = "Think you can take your old man? Let's see it.";
+      d.winLine = "...Ha! That's my kid. I'm so proud of you.";
+      d.loseLine = "Not yet, kiddo. Not yet. Keep at it.";
+      d.affinity = new String[0];
+      d.likes = new String[]{"berry juice", "moomoo milk", "nugget"};
+      d.greet = new String[]{"I washed up on that beach with nothing, you know. You'll do just fine.",
+         "Eat something before you head out!", "Never trust a calm sea. Trust me."};
+      d.friendly = new String[]{"Everyone in town talks about you now. Feels good, huh?",
+         "Your old man still has a few tricks. Want to see?", "Back in my day there wasn't even a POKéMON CENTER here."};
+      d.questIntro = "Nothing to ask. Just go have your adventure.";
+      d.questDone = "Proud of you.";
+
+      d = def("grandpa", "GRANDPA", false);
+      d.battleAsk = "One more for old times' sake?";
+      d.winLine = "Ha! The whole family's got it.";
+      d.loseLine = "Still got it, kiddo.";
+      d.affinity = new String[0];
+      d.likes = new String[]{"moomoo milk", "nugget"};
+      d.greet = new String[]{"When I washed up here, there was nothing but sand.", "Your parent was just as stubborn as you."};
+      d.friendly = new String[]{"I'm proud of this family.", "Sit with me a while."};
+      d.questIntro = "Just enjoy it. It goes fast.";
+      d.questDone = "Proud of you.";
+
       d = def("blue", "BLUE", false);
       d.battleAsk = "Let's see what you've got, rookie!";
       d.winLine = "What?! ...Okay, that was a good one.";
@@ -548,7 +572,12 @@ class Characters {
       next = questStep(game, npc, next);
       next = confessionStep(game, npc, next);
       Action first = new DisplayText(game, T(name + line), null, null, next);
-      game.insertAction(new Portrait(def.id));
+      if (Torch.needsStarter(game) && Torch.isProfessor(game, npc)) {
+         first = Torch.starterTalk(game, npc, end);
+      }
+      if (Gdx.files.internal("npc/portraits/" + def.id + ".png").exists()) {
+         game.insertAction(new Portrait(def.id));
+      }
       return first;
    }
 

@@ -118,6 +118,7 @@ class Calendar {
          game.insertAction(overlay);
       }
       loaded = true;
+      Torch.applyNames(game);
       Event e = activeEvent(game);
       if (e != null) {
          ensureLegend(game, e);

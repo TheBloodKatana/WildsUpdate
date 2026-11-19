@@ -75,7 +75,7 @@ class Npcs {
             "Strong trainers make strong towns.",
             "A LEAGUE isn't built in a day.",
             "I'm always looking for talent."));
-      for (String id : new String[]{"emma", "wood", "flambar", "willow", "locke", "lavender", "bruno", "blue"}) {
+      for (String id : new String[]{"emma", "wood", "flambar", "willow", "locke", "lavender", "bruno", "blue", "dad", "grandpa"}) {
          Characters.Def def = Characters.DEFS.get(id);
          add(new Type(id, def.name, new String[]{def.name}, def.greet));
       }
@@ -181,7 +181,10 @@ class Npcs {
       String role;      // "gym" once appointed by the League Director
       String gymCity;   // gym leaders: their town; townsfolk: the town they live in
       int wanderDay = -1;
-      int gymSlot = 0;     // which of the town's gyms (0, 1, 2)  // wandering trainers: the day they're out (they leave after)
+      int gymSlot = 0;     // which of the town's gyms (0, 1, 2)
+      String sprite;       // parents: the character picked at character creation ("gold", "kris"...)
+      int spriteColor;     // parents: their chosen colors (rgba8888)
+      int spriteSkin;  // wandering trainers: the day they're out (they leave after)
 
       NpcData() {
       }
@@ -603,7 +606,7 @@ class Npcs {
                   frame = n.dir.equals("left") ? 8 : 9;
                }
             }
-            this.region.setTexture(this.tex(n.data.type));
+            this.region.setTexture(n.data.sprite != null ? Torch.parentTexture(n) : this.tex(n.data.type));
             this.region.setRegion(frame * 16, 0, 16, 16);
             game.mapBatch.draw(this.region, n.position.x, n.position.y + 4.0F);
             if (this.news.contains(n) && (this.checkTimer / 20) % 2 == 0) {

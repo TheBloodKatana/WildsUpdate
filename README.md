@@ -105,6 +105,11 @@ release (by SheerSt) for personal modding only.
 - Tournaments (Tournaments.java): new gyms get an inaugural tournament; each season one gym town hosts.
   Sign up when you're in town that morning. See docs/PROGRESSION.md.
 
+- League (League.java, Tournaments.java, Torch.java): the Director builds a LEAGUE HALL in a CITY; the
+  REGIONAL on the last day of winter decides the CHAMPION and ELITE FOUR (they hold court at the hall at
+  noon and battle you once a day). Win it and you can pass the torch: your character becomes a core
+  character with your name, sprite and winning team; you play the kid.
+
 ## Keys
 - N: show/hide the minimap. M: full map.
 
@@ -122,3 +127,5 @@ release (by SheerSt) for personal modding only.
 - Y: cycle today's weather
 - U: start a legendary event right next to you
 - K: hold a tournament now in the nearest town, with you signed up
+- J: build the LEAGUE HALL in the nearest town and hold a simulated REGIONAL now (Shift+J: with you in it)
+- H: pass the torch now

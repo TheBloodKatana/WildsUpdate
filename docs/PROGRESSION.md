@@ -5,8 +5,10 @@ generation. Status: **design** unless marked **[built]**. Companion to `CHARACTE
 
 **[built]** so far: calendar and seasons, weather, legendary events, alert banners, minimap and map
 pins, home towns, inaugural and seasonal local tournaments, succession lists, vacancy filling,
-simulated battles, signing up and fighting your own matches. Not yet: League Hall, regional
-tournament, Elite Four, Champion, passing the torch.
+simulated battles, signing up and fighting your own matches, the League Hall, the regional
+tournament, Elite Four, Champion, and passing the torch (Dad with your character-creation name and
+sprite, the kid, starters, legendary reset). Not yet: a rival kid for Emma/Wood, the bulletin board,
+real League Hall building art.
 
 ---
 
@@ -129,12 +131,15 @@ keeps whoever holds the gym.
 
 ---
 
-## 6. The regional tournament
+## 6. The regional tournament **[built]**
 
 ### Requirements
 - **8 or more towns with a Gym Leader.**
-- A **LEAGUE HALL**: a building the Director asks you to build in a **CITY** (10+ houses). That's
-  where the regional happens and where the Elite Four and Champion spend their noons.
+- A **LEAGUE HALL**: the Director builds it in a **CITY** (10+ houses) once you bring 40 LOG, 20 IRON
+  ORE and 6 GOLD ORE. For now it's a monument (two statues and a sign) until there's building art.
+  That's where the regional happens and where the Elite Four and Champion spend their noons.
+- Talk to the Director as CHAMPION any time to pass the torch.
+- In phase 2 the kid needs **8 badges** to sign up.
 
 ### Who enters (16 entrants)
 1. The **Champion** and the **Elite Four**, seeded so they can't meet in round 1.
@@ -200,25 +205,26 @@ characters can react ("I lost to a BUG CATCHER. Don't talk to me.").
 
 ---
 
-## 9. Passing the torch (phase 2)
+## 9. Passing the torch (phase 2) **[built]**
 
 When you say YES:
 
-1. **You become a core character: Dad** (or Mom, matching your character's sprite).
+1. **You become a core character, using the name and sprite (with your chosen colors) from character
+   creation.** The text calls them DAD-style lines for now; their name tag is your old name.
    - His team is **exactly the team that won the finals**. From then on it grows daily like everyone else's.
    - He lives in your house with your partner, if you have one. He gets a routine, dialogue, quests
      for the kid, and needs a portrait.
    - He follows **all the rules above**: he can lose the Champion title, drop to the Elite Four,
      take over a gym through a local tournament, or end up a free trainer. The kid might meet him anywhere.
-2. **The kid** spawns in the family house with an empty bag, no Pokemon and their own empty PC.
-   - **Professor Willow** offers 3 starters: one Fire, one Water and one Grass, picked at random from the starter pool.
+2. **The kid** wakes up at home with 5 POKé BALLS, 3 BERRY JUICE, a POKéDEX and no Pokemon.
+   - **Professor Willow** (or Dad, if Willow doesn't live there) offers 3 starters: one Fire, one Water and one Grass, picked at random from the starter pool.
    - Kid catch level cap: **LV15, +10 per badge**, LV100 once Champion.
    - The kid **can** hold a gym, an Elite Four spot or the Champion title by winning tournaments.
 3. **Everything keeps running:** seasons, local tournaments, the regional, all simulated unless the kid takes part.
    **Every legendary encounter resets**, including ones your first character caught.
 4. **The world ages:** every core character's team has grown, townsfolk get new lines about "back when
    your dad washed up here", and your partner becomes the kid's other parent.
-5. **Rival:** if Emma, Wood or another core character has a child too (a partner of their own,
+5. **Rival [not built yet]:** if Emma, Wood or another core character has a child too (a partner of their own,
    simulated), that kid becomes the rival.
 6. **Next generation:** if the kid wins the regional, they can pass the torch too.
 
@@ -239,5 +245,6 @@ When you say YES:
 2. ~~Seasons, calendar, weather, legendary events~~ [built]
 3. ~~Home towns, succession lists, vacancy rules~~ [built]
 4. ~~Simulated battles and local tournaments~~ [built]
-5. League Hall, regional tournament, Elite Four, and Champion.
-6. Passing the torch: Dad as a core character, the kid, Professor Willow.
+5. ~~League Hall, regional tournament, Elite Four, and Champion~~ [built]
+6. ~~Passing the torch: Dad as a core character, the kid, Professor Willow~~ [built]
+7. Next: the kid's rival, bulletin board, survival (hunger, temperature, tool wear), shore intro, mailbox, festivals.

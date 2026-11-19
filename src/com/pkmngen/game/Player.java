@@ -94,7 +94,8 @@ public class Player {
    public String weatherTomorrow;
    public ArrayList<Calendar.Event> legendEvents = new ArrayList<>();
    public java.util.HashSet<String> legendsDone = new java.util.HashSet<>();
-   public int generation = 1;   // 1 = the survivor; 2+ after passing the torch
+   public int generation = 1;
+   public int championYear = -1;   // year you won the regional, -1 if you're not CHAMPION   // 1 = the survivor; 2+ after passing the torch
    public HashMap<String, Integer> townRep = new HashMap<>();
    public HashMap<String, Integer> bossDefeats = new HashMap<>();
    public HashMap<String, Integer> bossRespawnDay = new HashMap<>();
@@ -108,7 +109,11 @@ public class Player {
 
    /** Highest level of wild Pokemon you can catch. Raised by beating bosses. */
    public int catchLevelCap() {
-      return Math.min(100, Boss.BASE_CAP + Boss.CAP_PER_BOSS * this.bossesBeaten + League.CAP_PER_BADGE * this.badges.size());
+      if (this.generation >= 2) {
+         // the kid: badges raise the cap; CHAMPION means no limit
+         return this.championYear >= 0 ? 100 : Math.min(100, 15 + 10 * this.badges.size());
+      }
+      return Math.min(100, Boss.BASE_CAP + Boss.CAP_PER_BOSS * this.bossesBeaten);
    }
 
    /** Folds regional forms / letters into their base species id. */
@@ -752,6 +757,7 @@ public class Player {
             this.legendEvents = new ArrayList<>(pd.legendEvents);
          }
          this.generation = Math.max(1, pd.generation);
+         this.championYear = pd.championYear == 0 ? -1 : pd.championYear;
          if (pd.townRep != null) {
             this.townRep = new HashMap<>(pd.townRep);
          }

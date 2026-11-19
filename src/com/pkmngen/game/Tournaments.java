@@ -29,6 +29,7 @@ class Tournaments {
       String town;
       int day;
       boolean inaugural;
+      boolean regional;
 
       Sched() {
       }
@@ -118,12 +119,13 @@ class Tournaments {
    }
 
    static Sched today(Game game) {
+      Sched found = null;
       for (Sched s : state(game).scheduled) {
-         if (s.day == game.player.daysPassed) {
-            return s;
+         if (s.day == game.player.daysPassed && (found == null || s.regional)) {
+            found = s;
          }
       }
-      return null;
+      return found;
    }
 
    static void schedule(Game game, String town, int day, boolean inaugural) {
@@ -151,6 +153,7 @@ class Tournaments {
       }
       fillVacancies(game);
       planSeason(game);
+      planRegional(game);
    }
 
    static void onNewDay(Game game) {
@@ -161,11 +164,42 @@ class Tournaments {
       int day = game.player.daysPassed;
       fillVacancies(game);
       planSeason(game);
+      planRegional(game);
       announce(game);
       st.scheduled.removeIf(s -> s.day < day || city(game, s.town) == null);
       todayEntrants = null;
       signedUp = false;
       askedDay = -1;
+   }
+
+   /** The regional: last day of winter, once there's a LEAGUE HALL and 8 gym towns. */
+   static void planRegional(Game game) {
+      Cities.CityData hall = League.hallCity(game);
+      if (hall == null) {
+         return;
+      }
+      int day = game.player.daysPassed;
+      int regionalDay = (day / Calendar.YEAR_DAYS) * Calendar.YEAR_DAYS + Calendar.YEAR_DAYS - 1;
+      for (Sched s : state(game).scheduled) {
+         if (s.regional) {
+            return;
+         }
+      }
+      int left = regionalDay - day;
+      if (League.gymTowns(game) < League.GYM_TOWNS_FOR_REGIONAL) {
+         if (left == 7) {
+            Alerts.push(game, "No REGIONAL TOURNAMENT this year - only " + League.gymTowns(game) + " of 8 GYM towns.");
+         }
+         return;
+      }
+      if (left < 0) {
+         return;
+      }
+      Sched s = new Sched();
+      s.town = hall.name;
+      s.day = regionalDay;
+      s.regional = true;
+      state(game).scheduled.add(s);
    }
 
    static void planSeason(Game game) {
@@ -209,6 +243,15 @@ class Tournaments {
          }
          String where = Cities.title(c);
          String name = where + " TOURNAMENT";
+         if (s.regional) {
+            String hall = "the LEAGUE HALL in " + where;
+            if (s.day - day == 7) {
+               Alerts.push(game, "The REGIONAL TOURNAMENT starts in 7 days at " + hall + "!");
+            } else if (s.day == day) {
+               Alerts.push(game, "The REGIONAL TOURNAMENT starts TODAY at noon at " + hall + "!");
+            }
+            continue;
+         }
          if (s.day - day == ANNOUNCE_DAYS && !s.inaugural) {
             Alerts.push(game, "The " + name + " starts in 3 days at " + where + " plaza!");
          } else if (s.day == day) {
@@ -366,7 +409,7 @@ class Tournaments {
          return null;
       }
       if (todayEntrants == null) {
-         todayEntrants = entrants(game, c);
+         todayEntrants = s.regional ? regionalEntrants(game) : entrants(game, c);
       }
       return todayEntrants.contains(n) ? c : null;
    }
@@ -459,6 +502,9 @@ class Tournaments {
       ArrayList<Npcs.Npc> alive = new ArrayList<>();   // null = the player
       ArrayList<Object> ranking = new ArrayList<>();    // eliminated, worst first (Npc or null for player)
       HashMap<Object, Float> lastScore = new HashMap<>();
+      HashMap<Object, Integer> elimRound = new HashMap<>();
+      int size = SIZE;
+      boolean regional = false;
       int round = 1;
       boolean playerIn;
       Npcs.Npc playerOpp;          // waiting for this battle
@@ -485,8 +531,9 @@ class Tournaments {
          }
          String period = Routines.period(game);
          // morning sign-up when you're in town
+         boolean allowed = !s.regional || game.player.generation < 2 || game.player.badges.size() >= 8;
          if (period.equals("morning") && askedDay != game.player.daysPassed && playerHere(game, c) && game.playerCanMove
-            && game.battle.drawAction == null && hasFighters(game)) {
+            && game.battle.drawAction == null && hasFighters(game) && allowed) {
             askedDay = game.player.daysPassed;
             game.playerCanMove = false;
             Action yes = new DisplayText.Clear(game, new RunCode(() -> {
@@ -495,7 +542,8 @@ class Tournaments {
                   new SetField(game, "playerCanMove", true, null)));
             }, null));
             Action no = new DisplayText.Clear(game, new SetField(game, "playerCanMove", true, null));
-            game.insertAction(new DisplayText(game, Characters.T("The " + Cities.title(c) + " TOURNAMENT starts at noon. Sign up?"),
+            String tname = s.regional ? "REGIONAL TOURNAMENT" : Cities.title(c) + " TOURNAMENT";
+            game.insertAction(new DisplayText(game, Characters.T("The " + tname + " starts at noon. Sign up?"),
                null, true, false, new DrawYesNoMenu(null, yes, no)));
             return;
          }
@@ -521,13 +569,17 @@ class Tournaments {
       Running run = new Running();
       run.town = c;
       run.sched = s;
-      run.alive.addAll(entrants(game, c));
+      run.regional = s.regional;
+      run.size = s.regional ? 16 : SIZE;
+      run.alive.addAll(s.regional ? regionalEntrants(game) : entrants(game, c));
       state(game).scheduled.remove(s);
-      state(game).lastHost = c.name;
+      if (!s.regional) {
+         state(game).lastHost = c.name;
+      }
       if (signedUp) {
          if (playerHere(game, c)) {
             run.playerIn = true;
-            if (run.alive.size() >= SIZE) {
+            if (run.alive.size() >= run.size) {
                run.alive.remove(run.alive.size() - 1);   // the weakest entrant makes room for you
             }
             run.alive.add(null);
@@ -536,6 +588,10 @@ class Tournaments {
          }
       }
       signedUp = false;
+      if (run.regional && run.alive.size() < 2) {
+         Alerts.push(game, "The REGIONAL TOURNAMENT was called off. Not enough trainers.");
+         return;
+      }
       if (run.alive.size() < 2) {
          Npcs.Npc only = run.alive.isEmpty() ? null : run.alive.get(0);
          if (only != null && !League.isLeader(only) && leadersOf(game, c).size() < Cities.gymSlots(c)) {
@@ -571,10 +627,12 @@ class Tournaments {
             run.alive.remove(opp);
             run.ranking.add(opp);
             run.lastScore.put(opp, (float)power(game, opp));
+            run.elimRound.put(opp, run.round);
          } else {
             run.alive.remove(null);
             run.ranking.add(null);
             run.lastScore.put(null, 0F);
+            run.elimRound.put(null, run.round);
             run.playerIn = false;
          }
          run.battling = false;
@@ -623,6 +681,7 @@ class Tournaments {
          next.add(win);
          run.ranking.add(lose);
          run.lastScore.put(lose, Math.min(sa, sb));
+         run.elimRound.put(lose, run.round);
          run.log.add(win.fullName() + " beat " + lose.fullName());
       }
       run.alive = next;
@@ -646,8 +705,9 @@ class Tournaments {
       }
       String round = run.alive.size() <= 2 ? "FINAL" : run.alive.size() <= 4 ? "SEMIFINAL" : "ROUND " + run.round;
       game.playerCanMove = false;
-      game.insertAction(new DisplayText(game, Characters.T(Cities.title(run.town) + " TOURNAMENT - " + round + "! You vs "
-         + opp.fullName() + "! Your team was healed."), "fanfare1.ogg", null,
+      String tname = run.regional ? "REGIONAL" : Cities.title(run.town) + " TOURNAMENT";
+      game.insertAction(new DisplayText(game, Characters.T(tname + " - " + round + "! You vs "
+         + League.titled(opp) + "! Your team was healed."), "fanfare1.ogg", null,
          new RunCode(() -> {
             TrainerBattle.start(game, opp);
             if (game.battle.trainer != null) {
@@ -678,9 +738,22 @@ class Tournaments {
       boolean youWon = run.alive.size() == 1 && run.alive.get(0) == null;
       if (!run.alive.isEmpty()) {
          run.ranking.add(run.alive.get(0));
+         run.elimRound.put(run.alive.get(0), 999);
       }
       ArrayList<Object> order = new ArrayList<>(run.ranking);
-      java.util.Collections.reverse(order);   // best first
+      // best first: knocked out later is better; same round, the closer loss is better
+      order.sort((x, y) -> {
+         int rx = run.elimRound.getOrDefault(x, 0);
+         int ry = run.elimRound.getOrDefault(y, 0);
+         if (rx != ry) {
+            return ry - rx;
+         }
+         return Float.compare(run.lastScore.getOrDefault(y, 0F), run.lastScore.getOrDefault(x, 0F));
+      });
+      if (run.regional) {
+         regionalResults(game, run, order, youWon);
+         return;
+      }
       ArrayList<Npcs.Npc> finishers = new ArrayList<>();
       for (Object o : order) {
          if (o instanceof Npcs.Npc) {
@@ -736,6 +809,131 @@ class Tournaments {
       System.out.println("[tourney] " + c.name + " done. Leaders " + names(newLeaders) + " line " + c.succession + " log " + run.log);
    }
 
+
+   // ------------------------------------------------------------------ regional (section 6)
+
+   static ArrayList<Npcs.Npc> regionalEntrants(Game game) {
+      ArrayList<Npcs.Npc> out = new ArrayList<>();
+      Npcs.Npc champ = League.champion(game);
+      if (champ != null) {
+         out.add(champ);
+      }
+      out.addAll(League.eliteFour(game));
+      for (Cities.CityData c : Cities.list(game)) {
+         ArrayList<Npcs.Npc> ls = leadersOf(game, c);
+         ls.sort((a, b) -> a.data.gymSlot - b.data.gymSlot);
+         if (!ls.isEmpty() && !out.contains(ls.get(0))) {
+            out.add(ls.get(0));
+         }
+      }
+      ArrayList<Npcs.Npc> rest = new ArrayList<>();
+      for (Npcs.Npc n : game.map.npcs) {
+         if (fighter(n) && !holdsRole(n) && !Trainers.isWanderer(n) && !out.contains(n)) {
+            ensureTeam(game, n);
+            rest.add(n);
+         }
+      }
+      // core characters first, then by strength
+      rest.sort((a, b) -> {
+         boolean ca = Characters.isCore(a.data.type);
+         boolean cb = Characters.isCore(b.data.type);
+         if (ca != cb) {
+            return ca ? -1 : 1;
+         }
+         return power(game, b) - power(game, a);
+      });
+      for (Npcs.Npc n : rest) {
+         if (out.size() < 16) {
+            out.add(n);
+         }
+      }
+      while (out.size() > 16) {
+         out.remove(out.size() - 1);
+      }
+      for (Npcs.Npc n : out) {
+         ensureTeam(game, n);
+      }
+      return out;
+   }
+
+   static void regionalResults(Game game, Running run, ArrayList<Object> order, boolean youWon) {
+      Player p = game.player;
+      ArrayList<Npcs.Npc> finishers = new ArrayList<>();
+      for (Object o : order) {
+         if (o instanceof Npcs.Npc) {
+            finishers.add((Npcs.Npc)o);
+         }
+      }
+      Npcs.Npc oldChamp = League.champion(game);
+      ArrayList<Npcs.Npc> oldE4 = League.eliteFour(game);
+      Npcs.Npc newChamp = youWon ? null : (finishers.isEmpty() ? null : finishers.get(0));
+      ArrayList<Npcs.Npc> newE4 = new ArrayList<>();
+      for (Npcs.Npc n : finishers) {
+         if (n != newChamp && newE4.size() < 4) {
+            newE4.add(n);
+         }
+      }
+      boolean wasYou = p.championYear >= 0;
+      // clear old titles
+      for (Npcs.Npc n : game.map.npcs) {
+         if ((League.isChampion(n) || League.isE4(n)) && n != newChamp && !newE4.contains(n)) {
+            n.data.role = null;
+            n.data.gymCity = Trainers.isFolk(n.data.type) ? n.data.gymCity : null;
+         }
+      }
+      // new titles (a Gym Leader who moves up leaves their gym; the succession line fills it)
+      if (newChamp != null) {
+         if (League.isLeader(newChamp) && !Trainers.isFolk(newChamp.data.type)) {
+            newChamp.data.gymCity = null;
+         }
+         newChamp.data.role = "champion";
+         p.championYear = -1;
+      } else {
+         p.championYear = Calendar.year(game);
+      }
+      for (int i = 0; i < newE4.size(); i++) {
+         Npcs.Npc n = newE4.get(i);
+         if (League.isLeader(n) && !Trainers.isFolk(n.data.type)) {
+            n.data.gymCity = null;
+         }
+         n.data.role = "e4";
+         n.data.gymSlot = i;
+      }
+      String champName = youWon ? "You" : newChamp == null ? "Nobody" : newChamp.fullName();
+      Alerts.push(game, champName + (youWon ? " are" : " is") + " the new CHAMPION!" + (oldChamp != null && oldChamp == newChamp ? " (title defended)" : ""));
+      if (wasYou && !youWon) {
+         Alerts.push(game, "You lost the CHAMPION title.");
+      }
+      StringBuilder e4 = new StringBuilder("ELITE FOUR -");
+      for (Npcs.Npc n : newE4) {
+         e4.append(" ").append(n.fullName()).append(",");
+      }
+      if (!newE4.isEmpty()) {
+         Alerts.push(game, e4.substring(0, e4.length() - 1) + ".");
+      }
+      if (newChamp != null && newChamp != oldChamp) {
+         newChamp.data.pendingLine = "I'm the CHAMPION now. Feels unreal.";
+      }
+      for (Npcs.Npc n : newE4) {
+         if (!oldE4.contains(n)) {
+            n.data.pendingLine = "ELITE FOUR! Come find me at the LEAGUE HALL at noon.";
+         }
+      }
+      fillVacancies(game);
+      System.out.println("[tourney] REGIONAL done. Champion " + champName + " E4 " + names(newE4) + " log " + run.log);
+      if (youWon) {
+         p.addItem("rare candy", 5);
+         p.unlocks.add("champion:" + Calendar.year(game));
+         game.playerCanMove = false;
+         Action yes = new DisplayText.Clear(game, new RunCode(() -> Torch.pass(game), null));
+         Action no = new DisplayText.Clear(game, new DisplayText(game, Characters.T("Then defend your title! Talk to the LEAGUE DIRECTOR whenever you're ready."),
+            null, null, new SetField(game, "playerCanMove", true, null)));
+         game.insertAction(new DisplayText(game, Characters.T("You're the CHAMPION! Your team is legendary."), "fanfare1.ogg", null,
+            new DisplayText(game, Characters.T("Pass the torch to the next generation? Your character retires as CHAMPION and your kid starts their journey."),
+               null, true, false, new DrawYesNoMenu(null, yes, no))));
+      }
+   }
+
    static String status(Game game) {
       StringBuilder sb = new StringBuilder();
       for (Sched s : state(game).scheduled) {
@@ -747,7 +945,7 @@ class Tournaments {
          if (sb.length() > 0) {
             sb.append(" ");
          }
-         sb.append("The ").append(Cities.title(c)).append(" TOURNAMENT is ").append(in == 0 ? "today" : in == 1 ? "tomorrow" : "in " + in + " days").append(".");
+         sb.append("The ").append(s.regional ? "REGIONAL" : Cities.title(c)).append(" TOURNAMENT is ").append(in == 0 ? "today" : in == 1 ? "tomorrow" : "in " + in + " days").append(".");
       }
       return sb.toString();
    }

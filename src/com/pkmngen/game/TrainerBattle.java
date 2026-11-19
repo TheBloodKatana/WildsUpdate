@@ -29,7 +29,7 @@ class TrainerBattle {
    TrainerBattle(Npcs.Npc npc, boolean gym, int minLevel) {
       this.npc = npc;
       this.gym = gym;
-      this.name = gym ? "LEADER " + npc.fullName() : npc.fullName();
+      this.name = gym ? League.titled(npc) : npc.fullName();
       for (String member : npc.data.team) {
          String[] p = member.split(":");
          try {
@@ -53,7 +53,9 @@ class TrainerBattle {
       if (Characters.isCore(npc.data.type)) {
          Characters.daily(game, npc, false); // repairs unsupported team members
       }
-      TrainerBattle tb = new TrainerBattle(npc, gym, gym ? game.player.catchLevelCap() : 0);
+      int cap = game.player.catchLevelCap();
+      int minLevel = !gym ? 0 : League.isChampion(npc) ? cap + 10 : League.isE4(npc) ? cap + 5 : cap;
+      TrainerBattle tb = new TrainerBattle(npc, gym, Math.min(100, minLevel));
       if (tb.team.isEmpty()) {
          game.playerCanMove = true;
          return;
@@ -108,7 +110,7 @@ class TrainerBattle {
       Characters.Def def = Characters.DEFS.get(d.type);
       String line = def != null && def.winLine != null ? def.name + " - " + def.winLine : this.npc.fullName() + " - " + Trainers.winLine(this.npc);
       Action done = new RunCode(() -> game.battle.trainer = null, null);
-      if (this.gym) {
+      if (this.gym && League.isLeader(this.npc)) {
          done = League.awardBadge(game, this.npc, done);
       }
       if (this.tourney) {

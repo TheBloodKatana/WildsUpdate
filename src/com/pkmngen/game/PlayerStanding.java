@@ -309,7 +309,7 @@ class PlayerStanding extends Action {
          }
       }
 
-      // Dev mode: Y cycles today's weather, U starts a legendary event right here, K holds a tournament today in the nearest town.
+      // Dev mode: Y weather, U legendary event, K local tournament now, J league hall + regional now, H pass the torch now.
       if (game.debugInputEnabled && game.playerCanMove && game.map.tiles == game.map.overworldTiles) {
          if (Gdx.input.isKeyJustPressed(com.badlogic.gdx.Input.Keys.Y)) {
             String[] ws = {Calendar.CLEAR, Calendar.RAIN, Calendar.SNOW, Calendar.FOG, Calendar.HEAT};
@@ -329,6 +329,31 @@ class PlayerStanding extends Action {
                Calendar.ensureLegend(game, ev);
                Alerts.push(game, Characters.upper(ev.legend) + " has arrived! " + Characters.cap(ev.title) + " hits " + Alerts.where(game, game.player.position) + ".");
             }
+         }
+         if (Gdx.input.isKeyJustPressed(com.badlogic.gdx.Input.Keys.J)) {
+            Cities.CityData near = Cities.nearest(game, game.player.position);
+            if (near != null) {
+               if (League.hallCity(game) == null) {
+                  game.player.addItem("log", 40);
+                  game.player.addItem("iron ore", 20);
+                  game.player.addItem("gold ore", 6);
+                  League.buildHall(game, near);
+               }
+               Tournaments.Sched rs = new Tournaments.Sched();
+               rs.town = League.hallCity(game).name;
+               rs.day = game.player.daysPassed;
+               rs.regional = true;
+               Tournaments.state(game).scheduled.removeIf(sc -> sc.day == game.player.daysPassed);
+               Tournaments.state(game).scheduled.add(rs);
+               Tournaments.todayEntrants = null;
+               Tournaments.askedDay = game.player.daysPassed;
+               Tournaments.signedUp = Gdx.input.isKeyPressed(com.badlogic.gdx.Input.Keys.SHIFT_LEFT);   // Shift+J: with you in it
+               Tournaments.devStartNow = true;
+               Tournaments.announce(game);
+            }
+         }
+         if (Gdx.input.isKeyJustPressed(com.badlogic.gdx.Input.Keys.H)) {
+            Torch.pass(game);
          }
          if (Gdx.input.isKeyJustPressed(com.badlogic.gdx.Input.Keys.K)) {
             Cities.CityData near = Cities.nearest(game, game.player.position);

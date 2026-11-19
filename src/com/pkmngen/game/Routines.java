@@ -65,6 +65,9 @@ class Routines {
       lines("bruno", "plaza", "Just watching. Who's weak. Who's not.", "Keep walking.");
       lines("bruno", "trees", "Night's when the real trainers come out.", "You shouldn't be out here. ...Neither should I.");
 
+      sched("dad", "home", "plaza", "home", "inside");
+      lines("dad", "home", "Morning, kiddo. Got everything you need?", "I'm keeping an eye on the house. Go on, get out there.");
+      lines("dad", "plaza", "Just catching up with the neighbors.", "Funny. I built half of these houses.");
       sched("blue", "plaza", "wander", "home", "inside");
       lines("blue", "plaza", "Planning the next part of town. We need more houses!", "Morning! Got big plans today.");
       lines("blue", "wander", "Scouting the island. There's room for a whole city out here.", "Smell that? That's progress.");
@@ -110,9 +113,12 @@ class Routines {
       if (i < 3 && Tournaments.attending(game, npc) != null) {
          return "tourney";
       }
-      // Gym leaders hold court in their town at midday.
+      // Gym leaders hold court in their town at midday; the Elite Four and Champion at the LEAGUE HALL.
       if (i == 1 && "gym".equals(npc.data.role)) {
          return "gym";
+      }
+      if (i == 1 && ("e4".equals(npc.data.role) || "champion".equals(npc.data.role)) && League.hallCity(game) != null) {
+         return "hall";
       }
       if (s == null) {
          s = Trainers.schedule(npc);
@@ -190,6 +196,17 @@ class Routines {
             Cities.CityData c = Tournaments.attending(game, npc);
             if (c != null) {
                Vector2 p = nearestStandable(game, new Vector2(c.x + (Game.rand.nextInt(7) - 3) * 16, c.y + (Game.rand.nextInt(5) - 2) * 16), 4);
+               if (p != null) {
+                  return p;
+               }
+            }
+            return home;
+         }
+         case "hall": {
+            Cities.CityData hall = League.hallCity(game);
+            if (hall != null) {
+               int slot = "champion".equals(npc.data.role) ? 0 : npc.data.gymSlot + 1;
+               Vector2 p = nearestStandable(game, new Vector2(hall.hallX + (slot - 2) * 32, hall.hallY - 16), 3);
                if (p != null) {
                   return p;
                }

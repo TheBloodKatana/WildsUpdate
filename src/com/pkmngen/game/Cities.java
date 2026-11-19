@@ -28,6 +28,9 @@ class Cities {
       ArrayList<String> succession = new ArrayList<>();   // next in line for a gym slot (npc keys)
       String lastWinner;
       int lastTourneyDay = -1;
+      boolean leagueHall = false;   // the LEAGUE HALL stands here (needs a CITY)
+      float hallX;
+      float hallY;
 
       CityData() {
       }
