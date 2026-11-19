@@ -249,6 +249,8 @@ class DrawCraftsMenu extends Menu {
       char[] textArray = "CRAFTING MENU".toCharArray();
       if (Npcs.isTradeList(this.crafts)) {
          textArray = "TRADE MENU".toCharArray();
+      } else if (Characters.isGiftList(this.crafts)) {
+         textArray = "GIVE A GIFT".toCharArray();
       }
       if (this.crafts == game.player.fossilCrafts) {
          textArray = "FOSSIL MENU".toCharArray();
@@ -694,6 +696,17 @@ class DrawCraftsMenu extends Menu {
                            game.insertAction(new WaitFrames(game, 20, new PlayMusic("computer1", 0.5F, false, null)));
                            game.insertAction(new FossilMachinePowerUp.DoRevive(fossilCraft.name, null));
                            game.insertAction(newAction);
+                           return;
+                        }
+
+                        if (Characters.isGiftList(this.crafts)) {
+                           String giftText = Characters.T(Characters.receiveGift(game, this.crafts.get(index), 1));
+                           game.actionStack.remove(this);
+                           game.insertAction(this.prevMenu.prevMenu);
+                           game.insertAction(
+                              new DisplayText(game, giftText, "fanfare1.ogg", true, true,
+                                 new DisplayText.Clear(game, new SetField(this.prevMenu.prevMenu, "disabled", false, null)))
+                           );
                            return;
                         }
 

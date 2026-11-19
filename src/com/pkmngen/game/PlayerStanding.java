@@ -295,10 +295,13 @@ class PlayerStanding extends Action {
             Npcs.NpcData d = new Npcs.NpcData();
             d.type = nextType;
             d.name = Npcs.TYPES.get(nextType).names[0];
+            d.friendship = 3;
             d.x = d.homeX = spot.x;
             d.y = d.homeY = spot.y;
             d.bedLayer = -1;
-            game.map.npcs.add(new Npcs.Npc(d));
+            Npcs.Npc devNpc = new Npcs.Npc(d);
+            game.map.npcs.add(devNpc);
+            Characters.daily(game, devNpc, false);
             Npcs.ensureDriver(game);
          }
       }

@@ -67,6 +67,10 @@ class Npcs {
          .trade("escape rope", 1, "grass", 2)
          .trade("berry juice", 2, "berry seed", 3)
          .trade("rare candy", 1, "nugget", 1));
+      for (String id : new String[]{"emma", "wood", "flambar", "willow", "locke", "lavender", "bruno", "blue"}) {
+         Characters.Def def = Characters.DEFS.get(id);
+         add(new Type(id, def.name, new String[]{def.name}, def.greet));
+      }
       add(new Type("nurse", "NURSE", new String[]{"JOY", "ANA", "MEI", "CLARA"},
             "Your POKéMON look tired. Let me help!",
             "Remember to rest, trainer.",
@@ -118,6 +122,9 @@ class Npcs {
    /** When each type is willing to come. */
    static boolean unlocked(Game game, String id) {
       Player p = game.player;
+      if (Characters.isCore(id)) {
+         return Characters.unlocked(game, id);
+      }
       switch (id) {
          case "merchant": return true;
          case "nurse": return p.dexCaught.size() >= 10;
@@ -144,6 +151,17 @@ class Npcs {
       int friendship;
       int lastTalkDay = -1;
       int lastGiftDay = -1;
+      // Core characters (see Characters.java)
+      ArrayList<String> team;
+      int romance;
+      String relation;
+      int questStage;
+      int questBase;
+      int lastGiftTakenDay = -1;
+      int lastRomanceDay = -1;
+      int lastConfessionDay = -1;
+      String lastCatch;
+      int leg;
 
       NpcData() {
       }
@@ -168,6 +186,9 @@ class Npcs {
       }
 
       String fullName() {
+         if (Characters.isCore(this.data.type)) {
+            return this.type().title;
+         }
          return this.type().title + " " + this.data.name;
       }
 
@@ -207,6 +228,7 @@ class Npcs {
          // back out of the house every morning
          n.position.set(n.home());
          n.target.set(n.home());
+         Characters.daily(game, n, newDay);
       }
       if (!newDay && !game.map.npcs.isEmpty()) {
          return;
@@ -253,6 +275,7 @@ class Npcs {
       d.y = d.homeY;
       Npc npc = new Npc(d);
       game.map.npcs.add(npc);
+      Characters.daily(game, npc, false);
       System.out.println("NPC arrived: " + npc.fullName() + " at " + outside.position);
       pendingText = npc.fullName() + " arrived on the island and moved into one of your houses!";
    }
@@ -344,12 +367,17 @@ class Npcs {
          npc.data.lastTalkDay = player.daysPassed;
          npc.data.friendship = Math.min(10, npc.data.friendship + 1);
       }
+      if (Characters.isCore(npc.data.type)) {
+         game.playerCanMove = false;
+         game.insertAction(Characters.talk(game, npc, new SetField(game, "playerCanMove", true, null)));
+         return true;
+      }
       String line = type.lines[Game.rand.nextInt(type.lines.length)];
       String hearts = npc.data.friendship >= 8 ? " We're close friends now!" : "";
       game.playerCanMove = false;
       Action end = new SetField(game, "playerCanMove", true, null);
       Action service = service(game, npc, end);
-      game.insertAction(new DisplayText(game, npc.fullName() + " - " + line + hearts, null, null, service));
+      game.insertAction(new DisplayText(game, Characters.T(npc.fullName() + " - " + line + hearts), null, null, service));
       return true;
    }
 
@@ -366,8 +394,7 @@ class Npcs {
          npc.data.lastGiftDay = player.daysPassed;
          String[] g = gift.split(":");
          player.addItem(g[0], Integer.valueOf(g[1]));
-         after = new DisplayText(game, "You're a good friend. Take this! Got " + g[1] + " " + g[0].toUpperCase(Locale.ROOT) + ".",
-            "fanfare1.ogg", null, end);
+         after = new DisplayText(game, Characters.T("You're a good friend. Take this! Got " + g[1] + " " + g[0].toUpperCase(Locale.ROOT) + "."), "fanfare1.ogg", null, end);
       }
 
       if (!type.trades.isEmpty()) {
@@ -377,11 +404,11 @@ class Npcs {
             game.insertAction(new DrawCraftsMenu.Intro(null, 9,
                new DrawCraftsMenu(game, type.trades, new SetField(game.player, "isCrafting", false, afterTrade))));
          }, null);
-         return new DisplayText(game, "Want to trade?", null, true, false,
+         return new DisplayText(game, Characters.T("Want to trade?"), null, true, false,
             new DrawYesNoMenu(null, new DisplayText.Clear(game, open), new DisplayText.Clear(game, after)));
       }
       if (npc.data.type.equals("nurse")) {
-         return new DisplayText(game, "Shall I heal your POKéMON?", null, true, false,
+         return new DisplayText(game, Characters.T("Shall I heal your POKéMON?"), null, true, false,
             new DrawYesNoMenu(null, new DisplayText.Clear(game, new RunCode(() -> {
                for (Pokemon p : game.player.pokemon) {
                   if (!p.isEgg) {
@@ -389,11 +416,11 @@ class Npcs {
                      p.status = null;
                   }
                }
-            }, new DisplayText(game, "Your POKéMON are fighting fit!", "fanfare1.ogg", null, after))),
+            }, new DisplayText(game, Characters.T("Your POKéMON are fighting fit!"), "fanfare1.ogg", null, after))),
                new DisplayText.Clear(game, after)));
       }
       if (npc.data.type.equals("elder")) {
-         return new DisplayText(game, bossHint(game), null, null, after);
+         return new DisplayText(game, Characters.T(bossHint(game)), null, null, after);
       }
       return after;
    }
@@ -469,7 +496,7 @@ class Npcs {
          }
          if (pendingText != null && game.playerCanMove && game.battle.drawAction == null) {
             game.playerCanMove = false;
-            game.insertAction(new DisplayText(game, pendingText, "fanfare1.ogg", null, new SetField(game, "playerCanMove", true, null)));
+            game.insertAction(new DisplayText(game, Characters.T(pendingText), "fanfare1.ogg", null, new SetField(game, "playerCanMove", true, null)));
             pendingText = null;
          }
          if (!visible(game)) {
@@ -479,7 +506,13 @@ class Npcs {
             this.move(game, n);
             int frame = Arrays.asList("down", "up", "left", "right").indexOf(n.dir);
             if (n.moveTimer > 4 && n.moveTimer < 12) {
-               frame += 4;
+               if (n.dir.equals("down")) {
+                  frame = 4 + n.data.leg;
+               } else if (n.dir.equals("up")) {
+                  frame = 6 + n.data.leg;
+               } else {
+                  frame = n.dir.equals("left") ? 8 : 9;
+               }
             }
             this.region.setTexture(this.tex(n.data.type));
             this.region.setRegion(frame * 16, 0, 16, 16);
@@ -527,6 +560,7 @@ class Npcs {
          if (walkable(game, n, next)) {
             n.target.set(next);
             n.moveTimer = 16;
+            n.data.leg = 1 - n.data.leg;
          }
       }
    }

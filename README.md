@@ -64,6 +64,10 @@ release (by SheerSt) for personal modding only.
   Trades open in the crafting menu (TRADE MENU). Saved per island. Sprites: assets/npc/, all 69
   extracted Crystal overworld characters in art-reference/npc-rows/.
 
+- Core characters (Characters.java, docs/CHARACTERS.md): Emma, Flambar, Wood, Willow, Bruno,
+  Lavender, Locke, Blue arrive as villagers with 64x64 portraits, teams that catch Pokemon over
+  time, gifts, friendship, romance (Emma/Wood/Lavender), personal quests and confessions.
+
 ## Dev mode keys (run with `dev`)
 - F2: spawn the next villager on the faced tile (no house needed)
 - F3: force a villager arrival check (needs a free bed)
