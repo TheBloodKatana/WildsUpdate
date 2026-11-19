@@ -163,6 +163,10 @@ class Npcs {
       String lastCatch;
       String lastEvolved;
       int leg;
+      int wins;
+      int losses;
+      int lastBattleDay = -1;
+      String pendingLine;
 
       NpcData() {
       }

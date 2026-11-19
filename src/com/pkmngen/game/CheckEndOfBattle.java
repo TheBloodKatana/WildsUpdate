@@ -65,6 +65,20 @@ class CheckEndOfBattle extends Action {
             }
          }
 
+         if (game.battle.trainer != null && game.battle.trainer.hasNext()) {
+            // Trainer has more POKéMON: close this round and start the next one straight away.
+            final TrainerBattle trainer = game.battle.trainer;
+            nextAction.append(
+               new WaitFrames(game, 40, new DisplayText.Clear(game, new BattleFadeOut(game, new RunCode(() -> trainer.nextRound(game), null))))
+            );
+            game.insertAction(nextAction);
+            return;
+         }
+
+         if (game.battle.trainer != null) {
+            nextAction.append(game.battle.trainer.victory(game));
+         }
+
          nextAction.append(
             new WaitFrames(
                game,

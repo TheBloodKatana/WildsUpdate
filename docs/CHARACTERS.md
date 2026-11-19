@@ -19,7 +19,7 @@ Legend: **[built]** works now, **[battles]** needs trainer battles (next milesto
 | Gifts **[built]** | After talking: "Give a gift?" opens a GIVE A GIFT menu listing the things they love. |
 | Quest **[built]** | One personal quest, offered once friendship reaches 3. Completed by talking to them again. |
 | Confession **[built]** | Romance 10 + friendship 10 + quest done: they confess. YES = partner (one at a time). NO = romance drops to 7, they may try again after a week. |
-| Rival battles **[battles]** | Their real team (above) is what you fight. |
+| Rival battles **[built]** | Their real team (above) is what you fight. |
 | League roles **[battles]** | Any of them can become a Gym Leader, Elite Four member or Champion (see bottom). |
 
 ## The characters

@@ -627,6 +627,16 @@ class DrawCraftsMenu extends Menu {
                         game.client.sendTCP(new Network.Craft(game.player.network.id, index, DrawCraftsMenu.SelectAmount.amount));
                      }
 
+                     if (Characters.isGiftList(this.crafts) && !game.player.hasCraftRequirements(this.crafts, index, 1)) {
+                        game.actionStack.remove(this);
+                        game.insertAction(this.prevMenu.prevMenu);
+                        game.insertAction(
+                           new DisplayText(game, "You don\u0092t have that item!", null, true, true,
+                              new DisplayText.Clear(game, new SetField(this.prevMenu.prevMenu, "disabled", false, null)))
+                        );
+                        return;
+                     }
+
                      if (game.player.hasCraftRequirements(this.crafts, index, DrawCraftsMenu.SelectAmount.amount)) {
                         if (this.crafts == game.player.regiCrafts) {
                            Player.Craft craft = this.crafts.get(index);
@@ -701,12 +711,11 @@ class DrawCraftsMenu extends Menu {
 
                         if (Characters.isGiftList(this.crafts)) {
                            String giftText = Characters.T(Characters.receiveGift(game, this.crafts.get(index), 1));
+                           DrawCraftsMenu giftMenu = (DrawCraftsMenu)this.prevMenu.prevMenu;
                            game.actionStack.remove(this);
-                           game.insertAction(this.prevMenu.prevMenu);
-                           game.insertAction(
-                              new DisplayText(game, giftText, "fanfare1.ogg", true, true,
-                                 new DisplayText.Clear(game, new SetField(this.prevMenu.prevMenu, "disabled", false, null)))
-                           );
+                           game.actionStack.remove(this.prevMenu);
+                           game.actionStack.remove(giftMenu);
+                           game.insertAction(new DisplayText(game, giftText, "fanfare1.ogg", null, giftMenu.nextAction));
                            return;
                         }
 

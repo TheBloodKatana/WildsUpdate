@@ -435,6 +435,11 @@ class DrawUseTossMenu extends Menu {
       } else if (itemName.equals("silph scope") && !game.battle.oppPokemon.isGhost) {
          game.insertAction(this.prevMenu);
          game.insertAction(new PlayMusic("error1", new SetField(this.prevMenu, "disabled", false, null)));
+      } else if (itemName.contains("ball") && game.battle.trainer != null) {
+         game.insertAction(
+            new DisplayText(game, "You can't catch another trainer's POKéMON!", null, null,
+               new SetField(this.prevMenu, "disabled", false, this.prevMenu))
+         );
       } else if (itemName.contains("ball") && !Boss.underCatchCap(game.battle.oppPokemon, game.player)) {
          game.insertAction(
             new DisplayText(

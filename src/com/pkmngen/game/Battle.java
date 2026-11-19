@@ -35,6 +35,8 @@ public class Battle {
    public static HashMap<String, Attack.Category> specPhysLookup = new HashMap<>();
    public static ArrayList<String> gen2PhysicalTypes;
    public Pokemon oppPokemon;
+   // Trainer battles (see TrainerBattle.java): null for wild battles.
+   public TrainerBattle trainer;
    DrawBattle drawAction;
    Music music;
    Music victoryFanfare;
@@ -2416,7 +2418,7 @@ public class Battle {
             introAction.append(
                new DisplayText(
                   game,
-                  game.battle.oppPokemon.isBoss
+                  game.battle.oppPokemon.isBoss || game.battle.trainer != null
                      ? Boss.appearText(game)
                      : "Angry " + game.battle.oppPokemon.nickname.toUpperCase(Locale.ROOT) + " attacked!",
                   null,
@@ -2938,7 +2940,7 @@ public class Battle {
    }
 
    boolean calcIfRunSuccessful(Game game, Player player) {
-      if (this.oppPokemon != null && this.oppPokemon.isBoss) {
+      if (this.oppPokemon != null && this.oppPokemon.isBoss || this.trainer != null) {
          return false;
       }
       if (player.currPokemon.cantEscapeBy != null) {

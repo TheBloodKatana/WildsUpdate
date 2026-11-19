@@ -115,6 +115,9 @@ class Boss {
 
    static String appearText(Game game) {
       Pokemon opp = game.battle.oppPokemon;
+      if (game.battle.trainer != null) {
+         return game.battle.trainer.introText(opp);
+      }
       if (opp.isBoss) {
          return "The mighty " + opp.nickname.toUpperCase(Locale.ROOT) + " appeared! Weaken it before throwing a BALL!";
       }

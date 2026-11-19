@@ -42,6 +42,9 @@ class Characters {
       String questIntro;
       String questDone;
       String confession;
+      String battleAsk;
+      String winLine;   // shown when YOU win
+      String loseLine;  // said next time you talk, after they beat you
 
       Def(String id, String name, boolean romanceable) {
          this.id = id;
@@ -60,6 +63,9 @@ class Characters {
 
    static {
       Def d = def("emma", "EMMA", true);
+      d.battleAsk = "You again? Fine. Let me crush you.";
+      d.winLine = "Tch! You got lucky. Next time, you're mine.";
+      d.loseLine = "Ha! Told you. Stick to catching bugs.";
       d.starter = true;
       d.extraType = "DARK";
       d.affinity = new String[0];
@@ -76,6 +82,9 @@ class Characters {
       d.confession = "I... hate losing to you. But I'd hate it more if you weren't around. Stay with me?";
 
       d = def("flambar", "FLAMBAR", false);
+      d.battleAsk = "Let's have a good battle! No holding back!";
+      d.winLine = "You were amazing! I'm so proud of you.";
+      d.loseLine = "Don't be sad! You fought really well.";
       d.affinity = new String[]{"FIRE"};
       d.likes = new String[]{"charcoal", "fire stone", "berry juice", "soft bedding"};
       d.greet = new String[]{"Hi! Did you eat today? You should eat!", "My POKéMON keep me warm at night.",
@@ -86,6 +95,9 @@ class Characters {
       d.questDone = "A real hearth! Thank you. This island feels like home now.";
 
       d = def("wood", "WOOD", true);
+      d.battleAsk = "Spar with me. It'll toughen you up.";
+      d.winLine = "...Good. You're stronger than I thought.";
+      d.loseLine = "Get up. Train harder. I'll be here.";
       d.starter = true;
       d.extraType = "FIGHTING";
       d.affinity = new String[0];
@@ -102,6 +114,9 @@ class Characters {
       d.confession = "I've fought a lot of things. Nothing scares me like losing you. Be with me?";
 
       d = def("willow", "WILLOW", false);
+      d.battleAsk = "Battle test! For science!";
+      d.winLine = "Fascinating! My hypothesis was wrong!";
+      d.loseLine = "Data collected! Sorry, was that rude?";
       d.affinity = new String[]{"ELECTRIC"};
       d.likes = new String[]{"magnet", "metal coat", "thunderstone", "thin paper"};
       d.greet = new String[]{"Did you know MAGNEMITE can-- wait, where was I?", "I have a new theory! It's probably wrong!",
@@ -112,6 +127,9 @@ class Characters {
       d.questDone = "IT WORKS! Okay it's mostly sparks. But they're GOOD sparks!";
 
       d = def("bruno", "BRUNO", false);
+      d.battleAsk = "Think you can take me? Prove it.";
+      d.winLine = "...Hmph. You've got teeth after all.";
+      d.loseLine = "Pathetic. Come back when you're worth my time.";
       d.affinity = new String[]{"DARK"};
       d.likes = new String[]{"black glasses", "dusk ball", "nugget"};
       d.greet = new String[]{"Keep walking, kid. This is my turf.", "You look like easy prey.",
@@ -122,6 +140,9 @@ class Characters {
       d.questDone = "Two of them. Fine. You've earned your place here.";
 
       d = def("lavender", "LAVENDER", true);
+      d.battleAsk = "Let's play! The ghosts want to watch.";
+      d.winLine = "Hehe, you're so strong... the spirits are cheering!";
+      d.loseLine = "Don't worry. They only haunt the losers a little.";
       d.affinity = new String[]{"GHOST"};
       d.likes = new String[]{"spell tag", "dusk ball", "thin paper", "moon stone"};
       d.greet = new String[]{"Hehe... the spirits like you.", "Did you hear that? ...No? Good.",
@@ -137,6 +158,9 @@ class Characters {
       d.confession = "I've been dead set on you since we met. Hehe. Will you be mine?";
 
       d = def("locke", "LOCKE", false);
+      d.battleAsk = "Show me your roots.";
+      d.winLine = "Strong roots. Good.";
+      d.loseLine = "Grow some more. Then return.";
       d.affinity = new String[]{"GRASS", "GROUND", "ROCK", "BUG"};
       d.likes = new String[]{"miracle seed", "hard stone", "silver powder", "damp soil"};
       d.greet = new String[]{"The earth remembers everything.", "Watch your step. Bugs live there.",
@@ -147,6 +171,9 @@ class Characters {
       d.questDone = "Good. You see it now. The island is alive.";
 
       d = def("blue", "BLUE", false);
+      d.battleAsk = "Let's see what you've got, rookie!";
+      d.winLine = "What?! ...Okay, that was a good one.";
+      d.loseLine = "Smell ya later! Better luck next time.";
       d.affinity = new String[0];
       d.likes = new String[]{"rare candy", "nugget", "ultra ball"};
       d.greet = new String[]{"Smell ya later! ...Kidding. I'm sticking around.", "This place needs a POKéMON LEAGUE. And a champion. Me.",
@@ -259,6 +286,21 @@ class Characters {
       return n;
    }
 
+   static HashMap<String, Boolean> playableCache = new HashMap<>();
+
+   /** Some species have data files but no complete sprites/stats; building one throws. */
+   static boolean playable(String species) {
+      return playableCache.computeIfAbsent(species, sp -> {
+         try {
+            new Pokemon(sp, 5, Pokemon.Generation.CRYSTAL);
+            return true;
+         } catch (Throwable e) {
+            System.out.println("[npc] skipping unsupported species " + sp);
+            return false;
+         }
+      });
+   }
+
    static String randomOfType(String type) {
       loadTypeData();
       List<String> list = byType.get(type);
@@ -275,7 +317,13 @@ class Characters {
       if (base.isEmpty()) {
          base.addAll(list);
       }
-      return base.get(Game.rand.nextInt(base.size()));
+      java.util.Collections.shuffle(base, Game.rand);
+      for (String s : base) {
+         if (playable(s)) {
+            return s;
+         }
+      }
+      return "rattata";
    }
 
    static String randomFor(Def def) {
@@ -306,10 +354,19 @@ class Characters {
          d.team = new ArrayList<>();
       }
       int target = teamLevel(game);
+      // Swap out anything this build can't actually field (older saves, incomplete species).
+      for (int i = 0; i < d.team.size(); i++) {
+         String[] m = d.team.get(i).split(":");
+         if (!playable(m[0])) {
+            String type = def.extraType != null && i == 1 ? def.extraType : null;
+            d.team.set(i, (type != null ? randomOfType(type) : randomFor(def)) + ":" + m[1]);
+         }
+      }
       if (d.team.isEmpty()) {
          loadTypeData();
          if (def.starter) {
-            d.team.add(starters.get(Game.rand.nextInt(starters.size())) + ":" + Math.max(5, target - 2));
+            String starter = starters.get(Game.rand.nextInt(starters.size()));
+            d.team.add((playable(starter) ? starter : "chikorita") + ":" + Math.max(5, target - 2));
             d.team.add(randomOfType(def.extraType) + ":" + Math.max(5, target - 3));
          } else {
             d.team.add(randomFor(def) + ":" + Math.max(5, target - 2));
@@ -364,7 +421,7 @@ class Characters {
          ArrayList<String> ready = new ArrayList<>();
          for (String e : evos) {
             String[] p = e.split(":");
-            if (level >= Integer.valueOf(p[1])) {
+            if (level >= Integer.valueOf(p[1]) && playable(p[0])) {
                ready.add(p[0]);
             }
          }
@@ -429,13 +486,33 @@ class Characters {
          d.romance = Math.min(10, d.romance + 1);
       }
 
-      Action next = giftPrompt(game, npc, end);
+      if (d.pendingLine != null) {
+         line = d.pendingLine;
+         d.pendingLine = null;
+      }
+      Action next = battlePrompt(game, npc, end);
+      next = giftPrompt(game, npc, next);
       next = questStep(game, npc, next);
       next = confessionStep(game, npc, next);
       next = new DisplayText(game, T(name + "My team - " + teamText(npc) + "."), null, null, next);
       Action first = new DisplayText(game, T(name + line), null, null, next);
       game.insertAction(new Portrait(def.id));
       return first;
+   }
+
+   /** Once a day: "Battle me?" (needs at least one usable POKéMON). */
+   static Action battlePrompt(Game game, Npcs.Npc npc, Action end) {
+      Def def = DEFS.get(npc.data.type);
+      boolean canFight = false;
+      for (Pokemon p : game.player.pokemon) {
+         canFight |= !p.isEgg && p.currentStats.get("hp") > 0;
+      }
+      if (!canFight || !TrainerBattle.canBattle(npc) || npc.data.lastBattleDay == game.player.daysPassed || def.battleAsk == null) {
+         return end;
+      }
+      Action yes = new DisplayText.Clear(game, new RunCode(() -> TrainerBattle.start(game, npc), null));
+      return new DisplayText(game, T(def.name + " - " + def.battleAsk), null, true, false,
+         new DrawYesNoMenu(null, yes, new DisplayText.Clear(game, end)));
    }
 
    static Action giftPrompt(Game game, Npcs.Npc npc, Action end) {
@@ -653,8 +730,11 @@ class Characters {
       public void step(Game game) {
          if (this.wait > 0) {
             this.wait--;
-         } else if (game.playerCanMove) {
+         } else if (game.playerCanMove || game.battle.trainer != null) {
             game.actionStack.remove(this);
+            return;
+         }
+         if (game.player.isCrafting) {
             return;
          }
          // 1px dark frame, then the portrait, sitting right on top of the 48px text box

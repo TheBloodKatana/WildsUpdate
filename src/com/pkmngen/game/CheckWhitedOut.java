@@ -31,6 +31,10 @@ class CheckWhitedOut extends Action {
          }
       }
 
+      if (!hasAlivePokemon && game.battle.trainer != null) {
+         game.battle.trainer.defeat(game);
+      }
+
       if (hasAlivePokemon) {
          game.insertAction(this.nextAction);
       } else {

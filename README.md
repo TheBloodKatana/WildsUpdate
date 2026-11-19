@@ -68,6 +68,12 @@ release (by SheerSt) for personal modding only.
   Lavender, Locke, Blue arrive as villagers with 64x64 portraits, teams that catch Pokemon over
   time, gifts, friendship, romance (Emma/Wood/Lavender), personal quests and confessions.
 
+- Trainer battles (TrainerBattle.java): once a day each core character with a team offers a
+  battle after you talk. You fight their real team one Pokemon at a time (rounds chain with
+  "X sent out Y!"); no running, no catching. Winning adds friendship (and romance for Emma/Wood);
+  losing heals you as a normal whiteout and they gloat next time. Win/loss records are saved.
+  Gifts: picking a liked item you own gives it; the menu closes and the talk continues.
+
 ## Dev mode keys (run with `dev`)
 - F2: spawn the next villager on the faced tile (no house needed)
 - F3: force a villager arrival check (needs a free bed)
