@@ -101,7 +101,7 @@ public class Save {
          return null;
       } else {
          try {
-            ZipFile zip = new ZipFile(path);
+            ZipFile zip = new ZipFile(com.pkmngen.game.Platform.path(path));
 
             Object var4;
             try {
