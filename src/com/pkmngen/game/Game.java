@@ -1001,6 +1001,25 @@ public class Game extends ApplicationAdapter {
       }
    }
 
+   /** DEBUG: show a message on screen (used for load failures that are otherwise swallowed). */
+   public static void debugMessage(String message) {
+      Game g = staticGame;
+      if (g != null) {
+         g.debugError = message;
+         g.debugErrorTimer = 3600;
+      }
+   }
+
+   /** DEBUG: exception class + message for the whole cause chain, on one line. */
+   public static String describeError(Throwable e) {
+      StringBuilder sb = new StringBuilder();
+      for (Throwable t = e; t != null && sb.length() < 140; t = t.getCause()) {
+         sb.append(t.getClass().getSimpleName()).append(' ').append(t.getMessage()).append(" > ");
+      }
+
+      return sb.toString();
+   }
+
    private void reportError(Action action, Exception e) {
       this.debugErrorTimer = 300;
       if (this.debugError != null) {
