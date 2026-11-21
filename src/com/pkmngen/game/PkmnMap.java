@@ -1617,6 +1617,8 @@ public class PkmnMap {
             }
          }
       } catch (Save.ReadFailure | GdxRuntimeException var14) {
+         var14.printStackTrace();
+         Game.debugMessage("MAP LOAD FAILED " + Game.describeError(var14));
          System.out.println("No save file found for map: " + this.id + this.currMapId);
          System.out.println(this.id + this.currMapId);
          System.out.println(this.currMapId);
@@ -1697,6 +1699,8 @@ public class PkmnMap {
             game.map.tiles = game.map.interiorTiles.get(game.map.interiorTilesIndex);
          }
       } catch (Save.ReadFailure | GdxRuntimeException var8) {
+         var8.printStackTrace();
+         Game.debugMessage("GAME LOAD FAILED " + Game.describeError(var8));
          System.out.println("No save file found for map: " + this.id + this.currMapId);
       }
    }
